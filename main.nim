@@ -1,58 +1,26 @@
 import sdl, opengl, dynobj
+import macros
 
 import 
   catty.core.application, 
   catty.core.graphics, 
   catty.core.utils
  
-import 
+import
+  MGlobal,
   MGameObjects.MBase,
   MGameObjects.MGameField,
   MGameObjects.MProtagonist,
-  MGameObjects.MTails
-
-const
-  APPLICATON_DELAY = 10
-
-
-v["N"] = 30
-v["M"] = 20
-v["SCALE"] = 25
-v["SCREEN_WIDTH"] = v["N"].asInt * v["SCALE"].asInt
-v["SCREEN_HEIGHT"] = v["M"].asInt * v["SCALE"].asInt
-v["APPLICATON_DELAY"] = APPLICATON_DELAY
+  MGameObjects.MTiles
 
 var
   gameField = TGameField(lineColor: "#54B154")
   protagonist = TProtagonist(x: 2, y: 2, fillColor: "#3D6072", possibleDirection: @[drEast, drWest])
-#   mainTiles: seq[TMainTile] = @[
-#     TMainTile(x: 1, y: 1, fillColor: "#252B7A"),
-#     TMainTile(x: 1, y: 2, fillColor: "#252B7A"),
-#     TMainTile(x: 1, y: 3, fillColor: "#252B7A"),
-#     TMainTile(x: 1, y: 4, fillColor: "#252B7A"),
-#     TMainTile(x: 1, y: 5, fillColor: "#252B7A"),
-#     TMainTile(x: 2, y: 2, fillColor: "#252B7A"),
-#     TMainTile(x: 2, y: 3, fillColor: "#252B7A"),
-#     TMainTile(x: 2, y: 4, fillColor: "#252B7A"),
-#     TMainTile(x: 3, y: 1, fillColor: "#252B7A"),
-#     TMainTile(x: 3, y: 2, fillColor: "#252B7A"),
-#     TMainTile(x: 3, y: 3, fillColor: "#252B7A"),
-#     TMainTile(x: 3, y: 5, fillColor: "#252B7A"),
-#     TMainTile(x: 4, y: 1, fillColor: "#252B7A"),
-#     TMainTile(x: 4, y: 3, fillColor: "#252B7A"),
-#     TMainTile(x: 4, y: 4, fillColor: "#252B7A"),
-#     TMainTile(x: 5, y: 1, fillColor: "#252B7A"),
-#     TMainTile(x: 5, y: 2, fillColor: "#252B7A"),
-#     TMainTile(x: 5, y: 3, fillColor: "#252B7A"),
-#     TMainTile(x: 5, y: 4, fillColor: "#252B7A"),
-#     TMainTile(x: 5, y: 5, fillColor: "#252B7A")
-#   ]
 
-# echo mainTiles.len
-
-
-application.init(v["SCREEN_WIDTH"].asInt, v["SCREEN_HEIGHT"].asInt)
+application.init(SCREEN_WIDTH, SCREEN_HEIGHT)
 application.setWindowCaption("SH")
+
+gameField.init()
 
 block gameLoop:
   while true:
@@ -80,10 +48,6 @@ block gameLoop:
       glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
 
       gameField.draw()
-
-      # for mainTile in mainTiles:
-      #   mainTile.draw()
-
       protagonist.draw()
 
       sdl.GL_SwapBuffers()
