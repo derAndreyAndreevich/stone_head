@@ -23,9 +23,33 @@ v["SCREEN_HEIGHT"] = v["M"].asInt * v["SCALE"].asInt
 v["APPLICATON_DELAY"] = APPLICATON_DELAY
 
 var
-  GameField = TGameField(lineColor: "#54B154")
-  Protagonist = TProtagonist(x: 2, y: 2, fillColor: "#3D6072", possibleDirection: @[drEast, drWest])
-  MainTile = TMainTile(x: 3, y: 3, fillColor: "#287E8A")
+  gameField = TGameField(lineColor: "#54B154")
+  protagonist = TProtagonist(x: 2, y: 2, fillColor: "#3D6072", possibleDirection: @[drEast, drWest])
+#   mainTiles: seq[TMainTile] = @[
+#     TMainTile(x: 1, y: 1, fillColor: "#252B7A"),
+#     TMainTile(x: 1, y: 2, fillColor: "#252B7A"),
+#     TMainTile(x: 1, y: 3, fillColor: "#252B7A"),
+#     TMainTile(x: 1, y: 4, fillColor: "#252B7A"),
+#     TMainTile(x: 1, y: 5, fillColor: "#252B7A"),
+#     TMainTile(x: 2, y: 2, fillColor: "#252B7A"),
+#     TMainTile(x: 2, y: 3, fillColor: "#252B7A"),
+#     TMainTile(x: 2, y: 4, fillColor: "#252B7A"),
+#     TMainTile(x: 3, y: 1, fillColor: "#252B7A"),
+#     TMainTile(x: 3, y: 2, fillColor: "#252B7A"),
+#     TMainTile(x: 3, y: 3, fillColor: "#252B7A"),
+#     TMainTile(x: 3, y: 5, fillColor: "#252B7A"),
+#     TMainTile(x: 4, y: 1, fillColor: "#252B7A"),
+#     TMainTile(x: 4, y: 3, fillColor: "#252B7A"),
+#     TMainTile(x: 4, y: 4, fillColor: "#252B7A"),
+#     TMainTile(x: 5, y: 1, fillColor: "#252B7A"),
+#     TMainTile(x: 5, y: 2, fillColor: "#252B7A"),
+#     TMainTile(x: 5, y: 3, fillColor: "#252B7A"),
+#     TMainTile(x: 5, y: 4, fillColor: "#252B7A"),
+#     TMainTile(x: 5, y: 5, fillColor: "#252B7A")
+#   ]
+
+# echo mainTiles.len
+
 
 application.init(v["SCREEN_WIDTH"].asInt, v["SCREEN_HEIGHT"].asInt)
 application.setWindowCaption("SH")
@@ -47,16 +71,20 @@ block gameLoop:
           else: discard
         else: discard
 
-        Protagonist.checkEvent(event)
+        protagonist.checkEvent(event)
 
     block update:
-      Protagonist.update()
+      protagonist.update()
 
     block draw:
       glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
 
-      GameField.draw()
-      Protagonist.draw()
+      gameField.draw()
+
+      # for mainTile in mainTiles:
+      #   mainTile.draw()
+
+      protagonist.draw()
 
       sdl.GL_SwapBuffers()
     sdl.delay(APPLICATON_DELAY)
