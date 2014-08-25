@@ -44,23 +44,29 @@ proc update*(this: TProtagonist) =
     this.currentDirection = drNil
     this.isMoving = false
   elif 
-    (this.isMoving == true and this.currentDirection == drNorth and getMapElement(this.x, this.y - 1).tileType == tlMain) or
-    (this.isMoving == true and this.currentDirection == drEast  and getMapElement(this.x + 1, this.y).tileType == tlMain) or
-    (this.isMoving == true and this.currentDirection == drSouth and getMapElement(this.x, this.y + 1).tileType == tlMain) or
-    (this.isMoving == true and this.currentDirection == drWest  and getMapElement(this.x - 1, this.y).tileType == tlMain):
-    this.currentDirection = drNil
-    this.isMoving = false
+    (this.isMoving and this.currentDirection == drNorth and getMapElement(this.x, this.y - 1).tileType == tlMain) or
+    (this.isMoving and this.currentDirection == drEast  and getMapElement(this.x + 1, this.y).tileType == tlMain) or
+    (this.isMoving and this.currentDirection == drSouth and getMapElement(this.x, this.y + 1).tileType == tlMain) or
+    (this.isMoving and this.currentDirection == drWest  and getMapElement(this.x - 1, this.y).tileType == tlMain):
 
-  # if this.isMoving:
-  #   if this.currentDirection == drWest and getMapElement(this.x, this.y - 1).tileType == tlWall:
-  #     this.currentDirection = drNil
-  #     this.isMoving = false
+    this.isMoving = false
+    this.currentDirection = drNil
+
+  elif this.isStepArrow and this.currentDirection == drEast and getMapElement(this.x + 1, this.y).tileType in [tlWall, tlNil]:
+    this.currentDirection = drNil
 
   case this.currentDirection
   of drNorth: dec this.y
   of drEast: inc this.x
   of drSouth: inc this.y
-  of drWest: dec this.x
+  of drWest: 
+    dec this.x
+    echo "eee"
+    if this.isMoving:
+      for i in 0 .. < currentMap.len:
+        if currentMap[i].x == this.x and currentMap[i].y == this.y:
+          currentMap[i].x = this.x - 1
+          currentMap[i].y = this.y - 1
   else:
     discard
 
