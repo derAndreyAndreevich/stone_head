@@ -13,6 +13,7 @@ import
   MGameObjects.MProtagonist,
   MGameObjects.MTiles
 
+
 var
   gameField = TGameField(lineColor: "#54B154")
   protagonist = TProtagonist(x: 2, y: 2, fillColor: "#3D6072", possibleDirection: @[drEast, drWest])
