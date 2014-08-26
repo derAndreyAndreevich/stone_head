@@ -1,8 +1,8 @@
 import sdl, dynobj
 
 import
-  MGlobal,
-  MGameObjects.MBase
+  MGameLogic.MGlobal,
+  MGameLogic.MCollisions
 
 import 
   catty.core.application,
@@ -61,12 +61,11 @@ proc update*(this: TProtagonist) =
   of drSouth: inc this.y
   of drWest: 
     dec this.x
-    echo "eee"
-    if this.isMoving:
-      for i in 0 .. < currentMap.len:
-        if currentMap[i].x == this.x and currentMap[i].y == this.y:
-          currentMap[i].x = this.x - 1
-          currentMap[i].y = this.y - 1
+    # if this.isMoving:
+    #   for i in 0 .. < currentMap.len:
+    #     if currentMap[i].x == this.x and currentMap[i].y == this.y:
+    #       currentMap[i].x = this.x - 1
+    #       currentMap[i].y = this.y - 1
   else:
     discard
 

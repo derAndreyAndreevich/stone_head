@@ -6,8 +6,9 @@ import
   catty.core.utils
 
 import
-  MGlobal,
-  MGameObjects.MBase,
+  MGameLogic.MGlobal,
+  MGameLogic.MCollisions,
+
   MGameObjects.MTiles
 
 type TGameField* = ref object of TObject
@@ -63,3 +64,5 @@ proc draw*(this: TGameField) =
       TLeftArrow(x: tile.x, y: tile.y).draw()
     else:
       discard
+
+proc update*(this: TGameField) = discard

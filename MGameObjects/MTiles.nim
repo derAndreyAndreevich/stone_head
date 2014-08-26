@@ -1,8 +1,8 @@
 import sdl, dynobj
 
 import
-  MGlobal,
-  MGameObjects.MBase
+  MGameLogic.MGlobal,
+  MGameLogic.MCollisions
 
 import 
   catty.core.application, 

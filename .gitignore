@@ -10,6 +10,8 @@
 *~
 *.sass-cache
 *.exe
+
+stone_head
  
 # OS or Editor folders
 .DS_Store
@@ -23,14 +25,6 @@ nbproject
 *.sublime-project
 *.sublime-workspace
  
-# Dreamweaver added files
-_notes
-dwsync.xml
- 
-# Komodo
-*.komodoproject
-.komodotools
- 
 # Folders to ignore
 .hg
 .svn
@@ -38,9 +32,4 @@ dwsync.xml
 intermediate
 publish
 .idea
- 
-# build script local files
-build/buildinfo.properties
-build/config/buildinfo.properties
-stone-head.sublime-project
-stone-head.sublime-workspace
+.build

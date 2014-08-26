@@ -7,16 +7,19 @@ import
   catty.core.utils
  
 import
-  MGlobal,
-  MGameObjects.MBase,
+  MGameLogic.MGlobal,
+  MGameLogic.MCollisions,
+
   MGameObjects.MGameField,
   MGameObjects.MProtagonist,
   MGameObjects.MTiles
 
-
-var
+var 
   gameField = TGameField(lineColor: "#54B154")
   protagonist = TProtagonist(x: 2, y: 2, fillColor: "#3D6072", possibleDirection: @[drEast, drWest])
+
+
+discard gameObjects.add(gameField).add(protagonist)
 
 application.init(SCREEN_WIDTH, SCREEN_HEIGHT)
 application.setWindowCaption("SH")
@@ -43,13 +46,10 @@ block gameLoop:
         protagonist.checkEvent(event)
 
     block update:
-      protagonist.update()
+      gameObjects.update()
 
     block draw:
-      glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
-
-      gameField.draw()
-      protagonist.draw()
+      gameObjects.draw()
 
       sdl.GL_SwapBuffers()
     sdl.delay(APPLICATON_DELAY)
