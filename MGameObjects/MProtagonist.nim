@@ -10,7 +10,7 @@ import
   catty.core.utils
 
 type TProtagonist* = ref object of TObject
-  currentDirection: EDireciton
+  currentDirection: TDirectionType
   isMoving: bool
   isStepArrow: bool
   moveDistantion: int 
@@ -18,7 +18,7 @@ type TProtagonist* = ref object of TObject
 
   x*, y*: int
   fillColor*: string
-  possibleDirection*: seq[EDireciton]
+  possibleDirection*: seq[TDirectionType]
 
 proc checkEvent*(this: TProtagonist, event: var TEvent) = 
   case event.kind
@@ -32,58 +32,58 @@ proc checkEvent*(this: TProtagonist, event: var TEvent) =
   else: discard
 
 proc update*(this: TProtagonist) =
-  var 
-    currentTile = getMapElement(this.x, this.y)
+  # var 
+  #   currentTile = getMapElement(this.x, this.y)
 
-  if 
-    (not this.isStepArrow and this.currentDirection == drNorth and (this.y == 0 or getMapElement(this.x, this.y - 1).tileType in [tlWall, tlNil])) or
-    (not this.isStepArrow and this.currentDirection == drEast  and (this.x == N or getMapElement(this.x + 1, this.y).tileType in [tlWall, tlNil])) or 
-    (not this.isStepArrow and this.currentDirection == drSouth and (this.y == M or getMapElement(this.x, this.y + 1).tileType in [tlWall, tlNil])) or 
-    (not this.isStepArrow and this.currentDirection == drWest  and (this.x == 0 or getMapElement(this.x - 1, this.y).tileType in [tlWall, tlNil])):
+  # if 
+  #   (not this.isStepArrow and this.currentDirection == drNorth and (this.y == 0 or getMapElement(this.x, this.y - 1).tileType in [tlWall, tlNil])) or
+  #   (not this.isStepArrow and this.currentDirection == drEast  and (this.x == N or getMapElement(this.x + 1, this.y).tileType in [tlWall, tlNil])) or 
+  #   (not this.isStepArrow and this.currentDirection == drSouth and (this.y == M or getMapElement(this.x, this.y + 1).tileType in [tlWall, tlNil])) or 
+  #   (not this.isStepArrow and this.currentDirection == drWest  and (this.x == 0 or getMapElement(this.x - 1, this.y).tileType in [tlWall, tlNil])):
 
-    this.currentDirection = drNil
-    this.isMoving = false
-  elif 
-    (this.isMoving and this.currentDirection == drNorth and getMapElement(this.x, this.y - 1).tileType == tlMain) or
-    (this.isMoving and this.currentDirection == drEast  and getMapElement(this.x + 1, this.y).tileType == tlMain) or
-    (this.isMoving and this.currentDirection == drSouth and getMapElement(this.x, this.y + 1).tileType == tlMain) or
-    (this.isMoving and this.currentDirection == drWest  and getMapElement(this.x - 1, this.y).tileType == tlMain):
+  #   this.currentDirection = drNil
+  #   this.isMoving = false
+  # elif 
+  #   (this.isMoving and this.currentDirection == drNorth and getMapElement(this.x, this.y - 1).tileType == tlMain) or
+  #   (this.isMoving and this.currentDirection == drEast  and getMapElement(this.x + 1, this.y).tileType == tlMain) or
+  #   (this.isMoving and this.currentDirection == drSouth and getMapElement(this.x, this.y + 1).tileType == tlMain) or
+  #   (this.isMoving and this.currentDirection == drWest  and getMapElement(this.x - 1, this.y).tileType == tlMain):
 
-    this.isMoving = false
-    this.currentDirection = drNil
+  #   this.isMoving = false
+  #   this.currentDirection = drNil
 
-  elif this.isStepArrow and this.currentDirection == drEast and getMapElement(this.x + 1, this.y).tileType in [tlWall, tlNil]:
-    this.currentDirection = drNil
+  # elif this.isStepArrow and this.currentDirection == drEast and getMapElement(this.x + 1, this.y).tileType in [tlWall, tlNil]:
+  #   this.currentDirection = drNil
 
-  case this.currentDirection
-  of drNorth: dec this.y
-  of drEast: inc this.x
-  of drSouth: inc this.y
-  of drWest: 
-    dec this.x
-    # if this.isMoving:
-    #   for i in 0 .. < currentMap.len:
-    #     if currentMap[i].x == this.x and currentMap[i].y == this.y:
-    #       currentMap[i].x = this.x - 1
-    #       currentMap[i].y = this.y - 1
-  else:
-    discard
+  # case this.currentDirection
+  # of drNorth: dec this.y
+  # of drEast: inc this.x
+  # of drSouth: inc this.y
+  # of drWest: 
+  #   dec this.x
+  #   # if this.isMoving:
+  #   #   for i in 0 .. < currentMap.len:
+  #   #     if currentMap[i].x == this.x and currentMap[i].y == this.y:
+  #   #       currentMap[i].x = this.x - 1
+  #   #       currentMap[i].y = this.y - 1
+  # else:
+  #   discard
 
-  if this.isStepArrow:
-    if
-      (this.currentDirection == drNorth and currentTile.tileType in [tlTopArrow, tlVerticalArrow, tlFullArrow]) or
-      (this.currentDirection == drEast and currentTile.tileType in [tlRightArrow, tlHorizontalArrow, tlFullArrow]) or
-      (this.currentDirection == drSouth and currentTile.tileType in [tlBottomArrow, tlVerticalArrow, tlFullArrow]) or
-      (this.currentDirection == drWest and currentTile.tileType in [tlLeftArrow, tlHorizontalArrow, tlFullArrow]):
-      this.isMoving = true
+  # if this.isStepArrow:
+  #   if
+  #     (this.currentDirection == drNorth and currentTile.tileType in [tlTopArrow, tlVerticalArrow, tlFullArrow]) or
+  #     (this.currentDirection == drEast and currentTile.tileType in [tlRightArrow, tlHorizontalArrow, tlFullArrow]) or
+  #     (this.currentDirection == drSouth and currentTile.tileType in [tlBottomArrow, tlVerticalArrow, tlFullArrow]) or
+  #     (this.currentDirection == drWest and currentTile.tileType in [tlLeftArrow, tlHorizontalArrow, tlFullArrow]):
+  #     this.isMoving = true
 
-  if not (currentTile.tileType in [tlWall, tlMain]): 
-    this.isStepArrow = true
-  else:
-    this.isStepArrow = false
+  # # if not (currentTile.tileType in [tlWall, tlMain]): 
+  # #   this.isStepArrow = true
+  # # else:
+  # #   this.isStepArrow = false
 
-  if not this.isMoving:
-    this.currentDirection = drNil
+  # if not this.isMoving:
+  #   this.currentDirection = drNil
 
 
 proc draw*(this: TProtagonist) =
