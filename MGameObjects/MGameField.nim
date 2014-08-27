@@ -3,7 +3,8 @@ import sdl, dynobj, strutils
 import 
   catty.core.application,
   catty.core.graphics,
-  catty.core.utils
+  catty.core.utils,
+  catty.core.macros
 
 import
   MGameLogic.MGlobal,
@@ -67,3 +68,6 @@ proc draw*(this: TGameField) =
   #     discard
 
 proc update*(this: TGameField) = discard
+
+to_concrete_game_object GameField
+to_game_object GameField
