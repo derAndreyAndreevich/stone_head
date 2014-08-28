@@ -18,9 +18,9 @@ type
   ETile* = enum 
     tlNil, tlMain, tlWall, tlLeftArrow, tlRightArrow, tlTopArrow, tlBottomArrow, tlHorizontalArrow, tlVerticalArrow, tlFullArrow
 
-  TGameObject = ref object of TObject
-    kind: TGameObjectType
-    obj: ptr TObject
+  TGameObject* = ref object of TObject
+    kind*: TGameObjectType
+    obj*: ptr TObject
 
   TGameObjects* = ref object of TObject
     gameObjects: seq[TGameObject]
@@ -41,19 +41,24 @@ import
   MGameObjects.MTiles
 
 
-template GameObjectTo(name: expr) {.immediate.} =
+template GameObjectTo(name: expr) =
+  echo "totot"
   proc `to name`(this: TGameObject): `T name` = cast[`T name`](this.obj)
 
-template GameObjectAs(name: string) {.immediate.} =
-  proc `as name`(this: `T name`): TGameObject = TGameObject(kind: `gt name`, obj: cast[ptr TObject](this))
+# template GameObjectAs(name: expr) =
+#   echo "aoaoao"
+#   proc `as name`(this: `T name`): TGameObject = TGameObject(kind: `gt name`, obj: cast[ptr TObject](this))
+
 
 GameObjectTo GameField
 GameObjectTo Protagonist
 
-GameObjectAs GameField
-GameObjectAs Protagonist
+# GameObjectAs GameField
+# GameObjectAs Protagonist
 
-
+# proc asGameField(this: TGameField): TGameObject = TGameObject(kind: gtGameField, obj: cast[ptr TObject](this))
+# proc asProtagonist(this: TProtagonist): TGameObject = TGameObject(kind: gtProtagonist, obj: cast[ptr TObject](this))
+proc asGameField*(this: TGameField): TGameObject = TGameObject(kind: gtGameField, obj: cast[ptr TObject](this))
 
 proc add*(this: TGameObjects, o: TGameField|TProtagonist): TGameObjects {.discardable.} =
   if o is TGameField:

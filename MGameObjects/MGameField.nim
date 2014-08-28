@@ -16,6 +16,9 @@ type TGameField* = ref object of TObject
   currentMap: string
   mapArray: seq[tuple[x, y: int, tileType: ETile]]
 
+proc asGameField*(this: TGameField): TGameObject = TGameObject(kind: gtGameField, obj: cast[ptr TObject](this))
+
+
 proc init*(this: TGameField) =
 
   this.currentMap = """
