@@ -1,80 +1,22 @@
-import sdl, dynobj, strutils
+import sdl
 
 import 
   catty.core.application,
   catty.core.graphics,
-  catty.core.utils,
-  catty.core.macros
+  catty.core.utils
 
 import
-  MGameLogic.MGlobal,
-  MGameLogic.MCollisions,
+  MGameLogic.MGlobal
 
-  MGameObjects.MTiles
+part GameField:
+  var
+    fillColor*: string
 
-type TGameField* = ref object of TObject
-  lineColor*: string
-  currentMap: string
-#  mapArray: seq[tuple[x, y: int, tileType: ETile]]
+  draw:
+    this.fillColor.glColor()
 
-<<<<<<< HEAD
-proc asGameField*(this: TGameField): TGameObject = TGameObject(kind: gtGameField, obj: cast[ptr TObject](this))
+    for i in countup(0, SCREEN_HEIGHT, SCALE):
+      glLine(0, i, SCREEN_WIDTH, i)
 
-
-proc init*(this: TGameField) =
-=======
-# proc init*(this: TGameField) =
->>>>>>> 22e452b82da3f1cc626ca4ce2c4716fc4a62d8f7
-
-#   this.currentMap = """
-#     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-#     # . . . P P P P P L P P P P P P P P P P . . . . . . . . . #
-#     # . . . . . . . . . . . . . . . . . . . . . . . . . . . . #
-#     # . . . . . . . . . . . . . . . . . . . . . . . . . . . . #
-#     # . . . . . . . . . . . . . . . . . . . . . . . . . . . . #
-#     # . . . . . . . . . . . . . . . . . . . . . . . . . . . . #
-#     # . . . . . . . . . . . . . . . . . . . . . . . . . . . . #
-#     # . . . . . . . . . . . . . . . . . . . . . . . . . . . . #
-#     # . . . . . . . . . . . . . . . . . . . . . . . . . . . . #
-#     # . . . . . . . . . . # . # . . . . . . . . . . . . . . . #
-#     # . . . . . . . . . . . . . . . . . . . . . . . . . . . . #
-#     # . . . . . . . # . . . . . . . . . . . . . . . . . . . . #
-#     # . . . . . . . . . . . . . . . . . . . . . . . . . . . . #
-#     # . . . . . . . . . . . . . . . . . . . . . . . . . . . . #
-#     # . . . . . . . . . . . . . . . . . . . . . . . . . . . . #
-#     # . . . . . . . . . . . . . . . . . . . . . . . . . . . . #
-#     # . . . . . . . . . . . . . . . . . . . . . . . . . . . . #
-#     # . . . . . . . . . . . . . . . . . . . . . . . . . . . . #
-#     # . . . . . . . . . . . . . . . . . . . . . . . . . . . . #
-#     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-#   """
-
-#   for i in 0..M:
-#     for j in 0..N:
-#       case this.currentMap.split("\n")[i].split()[j]
-#       of "#":
-#         currentMap.add((x: j, y: i, tileType: tlWall))
-#       of ".":
-#         currentMap.add((x: j, y: i, tileType: tlMain))
-#       of "L":
-#         currentMap.add((x: j, y: i, tileType: tlLeftArrow))
-#       else:
-#         currentMap.add((x: 0, y: 0, tileType: tlNil))
-
-proc draw*(this: TGameField) =
-  discard
-  # for tile in currentMap:
-  #   case tile.tileType
-  #   of tlWall:
-  #     TWallTile(x: tile.x, y: tile.y).draw()
-  #   of tlMain:
-  #     TMainTile(x: tile.x, y: tile.y).draw()
-  #   of tlLeftArrow:
-  #     TLeftArrow(x: tile.x, y: tile.y).draw()
-  #   else:
-  #     discard
-
-proc update*(this: TGameField) = discard
-
-to_concrete_game_object GameField
-to_game_object GameField
+    for i in countup(0, SCREEN_WIDTH, SCALE):
+      glLine(i, 0, i, SCREEN_HEIGHT)

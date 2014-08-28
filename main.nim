@@ -1,34 +1,19 @@
 import sdl, opengl, dynobj
-import macros
 
 import 
-  catty.core.application, 
-  catty.core.graphics, 
-  catty.core.utils
+  catty.core.application
  
 import
   MGameLogic.MGlobal,
-  MGameLogic.MCollisions,
-
   MGameObjects.MGameField,
-  MGameObjects.MProtagonist,
-  MGameObjects.MTiles
+  MGameObjects.MProtagonist
 
-# var 
-#   gameField = TGameField(lineColor: "#54B154")
-#   protagonist = TProtagonist(x: 2, y: 2, fillColor: "#3D6072", possibleDirection: @[drEast, drWest])
-
-
-# discard gameObjects.add(gameField).add(protagonist)
+var 
+  gameField = TGameField(fillColor: "#205B7B")
+  protagonist = TProtagonist(x: 5, y: 5, fillColor: "#91CFD5")
 
 application.init(SCREEN_WIDTH, SCREEN_HEIGHT)
 application.setWindowCaption("SH")
-
-var testGameObject = TTestGameObject()
-
-# discard cast[ptr TGameObject](testGameObject)
-
-# gameField.init()
 
 block gameLoop:
   while true:
@@ -47,21 +32,17 @@ block gameLoop:
           else: discard
         else: discard
 
-        # protagonist.checkEvent(event)
+        gameField.checkEvent(event)
+        protagonist.checkEvent(event)
 
     block update:
-      # gameField.update()
-      # protagonist.update()
-      # gameObjects.update()
+      gameField.update()
+      protagonist.update()
 
     block draw:
-      (cast[TTestGameObject](cast[ptr TGameObject](testGameObject))).draw()
-      # gameObjects.draw()
-      # gameField.draw()
-      # protagonist.draw()
-
-
+      glClear( GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT )
+      gameField.draw()
+      protagonist.draw()
       sdl.GL_SwapBuffers()
-    # sdl.delay(1)
 
 application.quit()
