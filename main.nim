@@ -14,17 +14,21 @@ import
   MGameObjects.MProtagonist,
   MGameObjects.MTiles
 
-var 
-  gameField = TGameField(lineColor: "#54B154")
-  protagonist = TProtagonist(x: 2, y: 2, fillColor: "#3D6072", possibleDirection: @[drEast, drWest])
+# var 
+#   gameField = TGameField(lineColor: "#54B154")
+#   protagonist = TProtagonist(x: 2, y: 2, fillColor: "#3D6072", possibleDirection: @[drEast, drWest])
 
 
-discard gameObjects.add(gameField).add(protagonist)
+# discard gameObjects.add(gameField).add(protagonist)
 
 application.init(SCREEN_WIDTH, SCREEN_HEIGHT)
 application.setWindowCaption("SH")
 
-gameField.init()
+var testGameObject = TTestGameObject()
+
+# discard cast[ptr TGameObject](testGameObject)
+
+# gameField.init()
 
 block gameLoop:
   while true:
@@ -43,15 +47,21 @@ block gameLoop:
           else: discard
         else: discard
 
-        protagonist.checkEvent(event)
+        # protagonist.checkEvent(event)
 
     block update:
-      gameObjects.update()
+      # gameField.update()
+      # protagonist.update()
+      # gameObjects.update()
 
     block draw:
-      gameObjects.draw()
+      (cast[TTestGameObject](cast[ptr TGameObject](testGameObject))).draw()
+      # gameObjects.draw()
+      # gameField.draw()
+      # protagonist.draw()
+
 
       sdl.GL_SwapBuffers()
-    sdl.delay(APPLICATON_DELAY)
+    # sdl.delay(1)
 
 application.quit()

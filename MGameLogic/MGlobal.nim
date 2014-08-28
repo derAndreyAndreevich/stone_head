@@ -1,4 +1,4 @@
-import macros, strutils
+import sdl, macros, strutils
 
 const
   N* = 30
@@ -6,7 +6,13 @@ const
   SCALE* = 25
   SCREEN_WIDTH* = N * SCALE
   SCREEN_HEIGHT* = M * SCALE
-  APPLICATON_DELAY* = 30
+  APPLICATON_DELAY* = 100
+
+type
+  TDirectionType* = enum drNil, drNorth, drEast, drSouth, drWest
+  TTileType* = enum tlNil, tlMain, tlWall, tlLeftArrow
+  TGameObjectType* = enum gtNil, gtGameField, gtProtagonist
+
 
 type 
   TGameObjectType* = enum
@@ -35,12 +41,13 @@ proc getMapElement*(x, y: int): tuple[x, y: int, tileType: ETile] =
       return element
 
 
-import 
-  MGameObjects.MGameField,
-  MGameObjects.MProtagonist,
-  MGameObjects.MTiles
+# import
+#   MGameObjects.MGameField,
+#   MGameObjects.MProtagonist,
+#   MGameObjects.MTiles
 
 
+<<<<<<< HEAD
 template GameObjectTo(name: expr) =
   echo "totot"
   proc `to name`(this: TGameObject): `T name` = cast[`T name`](this.obj)
@@ -49,12 +56,28 @@ template GameObjectTo(name: expr) =
 #   echo "aoaoao"
 #   proc `as name`(this: `T name`): TGameObject = TGameObject(kind: `gt name`, obj: cast[ptr TObject](this))
 
+=======
+template to_concrete_game_object*(name: expr) {.immediate.} =
+  proc `to name`(this: TGameObject): `T name` = cast[`T name`](this.obj)
 
-GameObjectTo GameField
-GameObjectTo Protagonist
+template to_game_object*(name: string) {.immediate.} =
+  proc toGameObject(this: `T name`): TGameObject = TGameObject(kind: `gt name`, obj: cast[ptr TObject](this))
+
+# GameObjectTo GameField
+# GameObjectTo Protagonist
+>>>>>>> 22e452b82da3f1cc626ca4ce2c4716fc4a62d8f7
 
 # GameObjectAs GameField
 # GameObjectAs Protagonist
+
+<<<<<<< HEAD
+# GameObjectAs GameField
+# GameObjectAs Protagonist
+=======
+macro part*(head: expr, body: stmt): stmt =
+  echo head
+
+>>>>>>> 22e452b82da3f1cc626ca4ce2c4716fc4a62d8f7
 
 # proc asGameField(this: TGameField): TGameObject = TGameObject(kind: gtGameField, obj: cast[ptr TObject](this))
 # proc asProtagonist(this: TProtagonist): TGameObject = TGameObject(kind: gtProtagonist, obj: cast[ptr TObject](this))
@@ -69,9 +92,8 @@ proc add*(this: TGameObjects, o: TGameField|TProtagonist): TGameObjects {.discar
   return gameObjects
 
 proc draw*(this: TGameObjects) =
+  or 
   for gameObject in this.gameObjects:
-
-    # gameObject.to("GameField")
 
     if gameObject.kind == gtGameField:
       gameObject.toGameField.draw()
