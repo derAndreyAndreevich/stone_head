@@ -1,7 +1,7 @@
 import sdl
 
 import 
-  catty.core.graphics
+  catty.core.graphics,
   catty.core.utils
 
 import

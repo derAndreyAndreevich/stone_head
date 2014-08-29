@@ -6,7 +6,7 @@ import
   catty.core.utils
 
 import
-  MGameLogic.MGlobal
+  MGameLogic.MGlobal as Global
 
 part GameField:
   var

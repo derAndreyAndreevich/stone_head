@@ -1,12 +1,16 @@
+{.checks: off.}
+
 import sdl, opengl, dynobj
 
 import 
-  catty.core.application
+  catty.core.application,
+  catty.core.graphics,
+  catty.core.utils
  
 import
-  MGameLogic.MGlobal,
   MGameObjects.MGameField,
-  MGameObjects.MProtagonist
+  MGameObjects.MProtagonist,
+  MGameLogic.MGlobal
 
 var 
   gameField = TGameField(fillColor: "#205B7B")
