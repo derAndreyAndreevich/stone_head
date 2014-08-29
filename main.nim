@@ -33,6 +33,25 @@ block gameLoop:
           case evKeyboard(addr event).keysym.sym
           of K_ESCAPE:
             break gameLoop
+          of K_RCTRL:
+            RCTRL = true
+          of K_LCTRL:
+            LCTRL = true
+          of K_RALT:
+            RCTRL = true
+          of K_LALT:
+            LCTRL = true
+          else: discard
+        of KEYUP:
+          case evKeyboard(addr event).keysym.sym
+          of K_RCTRL:
+            RCTRL = false
+          of K_LCTRL:
+            LCTRL = false
+          of K_RALT:
+            RCTRL = false
+          of K_LALT:
+            LCTRL = false
           else: discard
         else: discard
 

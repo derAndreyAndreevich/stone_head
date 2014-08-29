@@ -9,6 +9,5 @@ task :default do
     nimcache = "--nimcache:#{Dir.tmpdir}/nimcache-#{project_name}"
     use_glew = "-d:useGlew"
 
-    sh "nimrod c --out:#{build_dir}/#{project_name} #{nimcache} #{use_glew} main.nim "
-    sh "#{build_dir}/#{project_name}"
+    sh "nimrod c -r --out:#{project_name} #{nimcache} #{use_glew} main.nim"
 end

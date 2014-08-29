@@ -4,6 +4,7 @@ import
   catty.core.graphics,
   catty.core.utils
 
+var event: TEvent
 import
   MGameLogic.MGlobal
 
@@ -15,8 +16,11 @@ part Protagonist:
     this.fillColor.glColor()
 
     glRect(this.x * SCALE, this.y * SCALE + 1, (this.x + 1) * SCALE - 1, (this.y + 1) * SCALE)
-  keydown up: this.y -= 1
-  keydown down: this.y += 1
-  keydown left: this.x -= 1
-  keydown right: this.x += 1
-    
+
+  keydown ctrl + up, w: 
+    if event.kind == KEYDOWN and (RCTRL and evKeyboard(addr event).keysym.sym == K_UP):
+      this.y -= 1
+  keydown down, s: this.y += 1
+  keydown left, a: this.x -= 1
+  keydown right, d: this.x += 1
+

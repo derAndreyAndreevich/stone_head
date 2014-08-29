@@ -14,3 +14,8 @@ type
     kind*: TGameObjectType
     node*: ptr TObject
 
+var
+  RCTRL*: bool
+  LCTRL*: bool
+  RALT*: bool
+  LALT*: bool
