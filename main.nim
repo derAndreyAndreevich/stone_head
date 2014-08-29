@@ -36,6 +36,7 @@ block gameLoop:
           of K_RCTRL:
             RCTRL = true
           of K_LCTRL:
+            echo "LCTRL true"
             LCTRL = true
           of K_RALT:
             RCTRL = true
@@ -47,6 +48,7 @@ block gameLoop:
           of K_RCTRL:
             RCTRL = false
           of K_LCTRL:
+            echo "LCTRL false"
             LCTRL = false
           of K_RALT:
             RCTRL = false
