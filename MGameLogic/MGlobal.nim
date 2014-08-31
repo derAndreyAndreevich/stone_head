@@ -8,14 +8,13 @@ const
   SCREEN_HEIGHT* = SCALE * M
 
 type
-  TGameObjectType* = enum gtGameField, gtProtagonist
+  TCattyGameObjectType* = enum gtGameField, gtProtagonist
 
-  TGameObject* = ref object of TObject
+  TCattyGameObject* = ref object of TObject
     kind*: TGameObjectType
     node*: ptr TObject
 
+  TCattyKeyIsDown* = enum kdRControl, kdLControl, kdRAlt, kdLAlt
+
 var
-  RCTRL*: bool
-  LCTRL*: bool
-  RALT*: bool
-  LALT*: bool
+  cattyKeyIsDown*: seq[TKeyIsDown] = @[]

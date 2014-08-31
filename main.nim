@@ -31,6 +31,12 @@ application:
     discard sdl.init(sdl.INIT_TIMER)
 
 
+game_objects_global:
+  GameField
+  Protagonist
+  # test:
+  #   type TGameObjectType = enum gtGameField, gtProtoganist
+
 
 app.init(SCREEN_WIDTH, SCREEN_HEIGHT)
 app.setWindowCaption("SH")
@@ -52,17 +58,21 @@ block gameLoop:
           of K_ESCAPE:
             break gameLoop
           of K_RCTRL:
-            RCTRL = true
+            # RCTRL = true
+            cattyKeyIsDown.add(kdRControl)
             echo "keydown:  <Right: CTRL>"
           of K_LCTRL:
+            # LCTRL = true
+            cattyKeyIsDown.add(kdLControl)
             echo "keydown: <Left: CTRL>"
-            LCTRL = true
           of K_RALT:
+            # RCTRL = true
+            cattyKeyIsDown.add(kdRAlt)
             echo "keydown: <Right: ALT>"
-            RCTRL = true
           of K_LALT:
+            # LALT = true
+            cattyKeyIsDown.add(kdLAlt)
             echo "keydown: <Left: ALT>"
-            LALT = true
           else: discard
         of KEYUP:
           case evKeyboard(addr event).keysym.sym
