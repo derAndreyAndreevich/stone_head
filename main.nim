@@ -3,9 +3,10 @@
 import sdl, opengl, dynobj
 
 import 
-  catty.core.application,
+  catty.core.application as app,
   catty.core.graphics,
-  catty.core.utils
+  catty.core.utils,
+  catty.core2
  
 import
   MGameObjects.MGameField,
@@ -16,8 +17,25 @@ var
   gameField = TGameField(fillColor: "#205B7B")
   protagonist = TProtagonist(x: 5, y: 5, fillColor: "#91CFD5")
 
-application.init(SCREEN_WIDTH, SCREEN_HEIGHT)
-application.setWindowCaption("SH")
+application:
+  settings: 
+    screenWidth = SCREEN_WIDTH
+    screenHeight = SCREEN_HEIGHT
+  game_objects:
+    TGameField(fillColor: "#205B7B")
+    TProtagonist(x: 5, y: 5, fillColor: "#91CFD5")
+  test:
+    var 
+      gameField = TGameField(fillColor: "#205B7B")
+      protagonist = TProtagonist(x: 5, y: 5, fillColor: "#91CFD5")
+    discard sdl.init(sdl.INIT_TIMER)
+
+
+
+app.init(SCREEN_WIDTH, SCREEN_HEIGHT)
+app.setWindowCaption("SH")
+
+# echo gameField.asGameObject.kind
 
 block gameLoop:
   while true:
@@ -35,25 +53,31 @@ block gameLoop:
             break gameLoop
           of K_RCTRL:
             RCTRL = true
+            echo "keydown:  <Right: CTRL>"
           of K_LCTRL:
-            echo "LCTRL true"
+            echo "keydown: <Left: CTRL>"
             LCTRL = true
           of K_RALT:
+            echo "keydown: <Right: ALT>"
             RCTRL = true
           of K_LALT:
-            LCTRL = true
+            echo "keydown: <Left: ALT>"
+            LALT = true
           else: discard
         of KEYUP:
           case evKeyboard(addr event).keysym.sym
           of K_RCTRL:
-            RCTRL = false
+            RCTRL = true
+            echo "keyup:  <Right: CTRL>"
           of K_LCTRL:
-            echo "LCTRL false"
-            LCTRL = false
+            echo "keyup: <Left: CTRL>"
+            LCTRL = true
           of K_RALT:
-            RCTRL = false
+            echo "keyup: <Right: ALT>"
+            RCTRL = true
           of K_LALT:
-            LCTRL = false
+            echo "keyup: <Left: ALT>"
+            LALT = true
           else: discard
         else: discard
 
@@ -70,4 +94,6 @@ block gameLoop:
       protagonist.draw()
       sdl.GL_SwapBuffers()
 
-application.quit()
+    sdl.delay(10)
+
+app.quit()

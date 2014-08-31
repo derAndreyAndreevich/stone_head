@@ -1,8 +1,8 @@
 import MGameObjects.MGameField
 
 const
-  N* = 30
-  M* = 20
+  N* = 20
+  M* = 11
   SCALE* = 25
   SCREEN_WIDTH* = SCALE * N
   SCREEN_HEIGHT* = SCALE * M
