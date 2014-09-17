@@ -1,4 +1,6 @@
-import MGameObjects.MGameField
+import catty.core.utils
+import MGameObjects.MGameFieldType
+import MGameObjects.MProtagonistType
 
 const
   N* = 20
@@ -7,14 +9,14 @@ const
   SCREEN_WIDTH* = SCALE * N
   SCREEN_HEIGHT* = SCALE * M
 
-type
-  TCattyGameObjectType* = enum gtGameField, gtProtagonist
+type 
+  TCattyGameObjectType* = enum gtNil, gtGameField, gtProtagonist
+  TCattyKeyType* = enum kdRControl, kdLControl, kdRAlt, kdLAlt
 
   TCattyGameObject* = ref object of TObject
-    kind*: TGameObjectType
+    kind*: TCattyGameObjectType
     node*: ptr TObject
 
-  TCattyKeyIsDown* = enum kdRControl, kdLControl, kdRAlt, kdLAlt
-
-var
-  cattyKeyIsDown*: seq[TKeyIsDown] = @[]
+var 
+  cattyGameObjects*: seq[TCattyGameObject] = @[]
+  cattyKeyIsDown*: seq[TCattyKeyType] = @[]

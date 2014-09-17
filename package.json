@@ -1,0 +1,14 @@
+{
+  "name": "stone-head",
+  "description": "remake game",
+  "version": "0.1.0",
+  "devDependencies": {
+    "grunt": "*",
+    "grunt-contrib-concat": "*", 
+    "grunt-contrib-watch": "*",
+    "grunt-contrib-clean": "*",
+    "grunt-contrib-copy": "*",
+    "grunt-mkdir": "*",
+    "grunt-shell": "*"
+  }
+}
