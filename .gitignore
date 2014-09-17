@@ -34,3 +34,4 @@ publish
 .idea
 build
 .build
+node_modules
