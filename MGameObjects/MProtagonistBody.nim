@@ -1,4 +1,4 @@
-import sdl
+import sdl, sequtils
 
 import 
   catty.core.graphics,
@@ -13,9 +13,6 @@ part Protagonist:
   draw: 
     this.fillColor.glColor()
     glRect(this.x * SCALE, this.y * SCALE + 1, (this.x + 1) * SCALE - 1, (this.y + 1) * SCALE)
-    for gameObject in cattyGameObjects:
-      if gameObject.kind == gtGameField:
-        echo gameObject.toGameField.fillColor
 
   keydown up, w: 
     if this.y > 0: dec this.y 
