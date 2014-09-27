@@ -14,8 +14,8 @@ part Protagonist:
     this.fillColor.glColor()
     glRect(this.x * SCALE, this.y * SCALE + 1, (this.x + 1) * SCALE - 1, (this.y + 1) * SCALE)
 
-  keydown up, w: 
-    if this.y > 0: dec this.y 
+  keydown up, w:
+    if this.y > 0: dec this.y
 
   keydown down, s: 
     if this.y < M - 1: inc this.y

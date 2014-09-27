@@ -12,6 +12,7 @@ const
 type 
   TCattyGameObjectType* = enum gtNil, gtGameField, gtProtagonist
   TCattyKeyType* = enum kdRControl, kdLControl, kdRAlt, kdLAlt
+  TMapTileType* = enum mttNil, mttWall
 
   TCattyGameObject* = ref object of TObject
     kind*: TCattyGameObjectType
