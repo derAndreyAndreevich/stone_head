@@ -1,6 +1,8 @@
-import catty.core.utils
-import MGameObjects.MGameFieldType
-import MGameObjects.MProtagonistType
+import 
+  catty.core.application as app, 
+  catty.core.utils, 
+  MGameObjects.MGameFieldType, 
+  MGameObjects.MProtagonistType
 
 const
   N* = 20
@@ -11,7 +13,7 @@ const
 
 type 
   TCattyGameObjectType* = enum gtNil, gtGameField, gtProtagonist
-  TCattyKeyType* = enum kdRControl, kdLControl, kdRAlt, kdLAlt
+  # TCattyKeyType* = enum kdRControl, kdLControl, kdRAlt, kdLAlt
   TMapTileType* = enum mttNil, mttWall
 
   TCattyGameObject* = ref object of TObject
@@ -20,4 +22,5 @@ type
 
 var 
   cattyGameObjects*: seq[TCattyGameObject] = @[]
-  cattyKeyIsDown*: seq[TCattyKeyType] = @[]
+  # cattyKeyIsDown*: seq[TCattyKeyType] = @[]
+  application* = TCattyApplication(screenWidth: 800, screenHeight: 600, clearColor: "#7C8899")

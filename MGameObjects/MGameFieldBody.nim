@@ -11,7 +11,10 @@ import
   MGameLogic.MMaps,
   MGameFieldType
 
-proc draw(this: TGameField) =
+proc draw*(this: TGameField) =
+  var k: TKey = K_W
+  # echo sdl.K_W
+  echo application.isKeyDown(k)
   for i in 0 .. 11:
     for j in 0 .. 20:
       if level2[i][j] == "w":

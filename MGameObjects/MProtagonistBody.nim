@@ -8,7 +8,7 @@ import
   MGameLogic.MGlobal,
   MProtagonistType
 
-proc update(this: TProtagonist)
+# proc update(this: TProtagonist)
 
 proc draw(this: TProtagonist) =
   this.fillColor.glColor()
@@ -28,8 +28,8 @@ proc onKeyDown(this: TProtagonist, keycode: int) =
     if this.y < M - 1: inc this.y
   else: discard
 
-proc onKeyUp(this: TProtagonist, keycode: int)
-proc onKeyPress(this: TProtagonist, keycode: int)
+# proc onKeyUp(this: TProtagonist, keycode: int)
+# proc onKeyPress(this: TProtagonist, keycode: int)
 
 # part Protagonist:
 #   draw: 
