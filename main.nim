@@ -10,7 +10,6 @@ import
 var 
   event: sdl.TEvent
   gameField = TGameField(fillColor: "#FFA5A5")
-  glTexture: GLUint
   sTexture = imgLoad("texture.png")
 
 
@@ -20,7 +19,15 @@ else:
   echo "not nil"
 # echo sTexture
 
+
 application.initialization()
+
+glGenTextures(1, addr texture)
+glBindTexture(GL_TEXTURE_2D, texture)
+glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, sTexture.w, sTexture.h, 0, GL_RGB, GL_UNSIGNED_BYTE, sTexture.pixels)
+glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR)
+glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR)
+freeSurface(sTexture)
 
 block gameLoopBlock:
   while true:

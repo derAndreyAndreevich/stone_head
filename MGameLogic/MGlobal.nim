@@ -1,4 +1,5 @@
 # import catty.mcore.mapplication
+import opengl
 import catty.core
 
 import 
@@ -8,9 +9,10 @@ import
 const
   N* = 20
   M* = 11
-  SCALE* = 25
+  SCALE* = 64
   SCREEN_WIDTH* = SCALE * N
   SCREEN_HEIGHT* = SCALE * M
 
 var
-  application* = TCattyApplication(screenWidth: 800, screenHeight: 600, clearColor: "#7C8899")
+  application* = TCattyApplication(screenWidth: SCREEN_WIDTH, screenHeight: screenHeight, clearColor: "#7C8899")
+  texture*: GLuint
