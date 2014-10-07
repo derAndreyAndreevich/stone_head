@@ -1,8 +1,6 @@
 import sdl, sequtils
 
-import 
-  catty.core.graphics,
-  catty.core.utils
+import catty.core
 
 import
   MGameLogic.MGlobal,

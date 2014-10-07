@@ -1,10 +1,6 @@
-import sdl, opengl, dynobj
+import sdl, sdl_image, opengl, dynobj
 
-import 
-  catty.core.application as app,
-  catty.core.graphics,
-  catty.core.utils,
-  catty.core.colors
+import catty.core
 
 import
   MGameObjects.MGameFieldType, MGameObjects.MGameFieldBody,
@@ -14,6 +10,15 @@ import
 var 
   event: sdl.TEvent
   gameField = TGameField(fillColor: "#FFA5A5")
+  glTexture: GLUint
+  sTexture = imgLoad("texture.png")
+
+
+if sTexture == nil:
+  echo "nil"
+else:
+  echo "not nil"
+# echo sTexture
 
 application.initialization()
 

@@ -1,6 +1,7 @@
+# import catty.mcore.mapplication
+import catty.core
+
 import 
-  catty.core.application as app, 
-  catty.core.utils, 
   MGameObjects.MGameFieldType, 
   MGameObjects.MProtagonistType
 

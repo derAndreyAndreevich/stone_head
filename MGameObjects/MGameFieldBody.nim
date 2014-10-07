@@ -1,9 +1,6 @@
 import sdl, strutils, opengl
 
-import 
-  catty.core.graphics,
-  catty.core.utils,
-  catty.core.colors
+import catty.core
 
 import
   MGameLogic.MGlobal,
@@ -11,8 +8,8 @@ import
   MGameFieldType
 
 proc draw*(this: TGameField) =
-  for i in 0 .. 11:
-    for j in 0 .. 20:
+  for i in countup(0, 10):
+    for j in countup(0, 19):
       if level1[i][j] == "w":
         "#F5C2C2".glColor()
         glRect(j * SCALE, i * SCALE + 1, (j + 1) * SCALE - 1, (i + 1) * SCALE)
