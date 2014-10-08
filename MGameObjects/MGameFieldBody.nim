@@ -11,9 +11,10 @@ proc draw*(this: TGameField) =
   for i in countup(0, 10):
     for j in countup(0, 19):
       if level1[i][j] == "w":
-        glBindTexture(GL_TEXTURE_2D,texture)
+        glBindTexture(GL_TEXTURE_2D, application.getTexture("texture2"))
         "#F5C2C2".glColor()
-        glRect(j * SCALE, i * SCALE + 1, (j + 1) * SCALE - 1, (i + 1) * SCALE)
+        # glRect(j * SCALE, i * SCALE + 1, (j + 1) * SCALE - 1, (i + 1) * SCALE)
+        glRectTexture(j * SCALE, i * SCALE + 1, (j + 1) * SCALE - 1, (i + 1) * SCALE)
 
   this.fillColor.glColor()
 

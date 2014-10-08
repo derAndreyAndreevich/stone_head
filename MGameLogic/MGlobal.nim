@@ -15,4 +15,4 @@ const
 
 var
   application* = TCattyApplication(screenWidth: SCREEN_WIDTH, screenHeight: screenHeight, clearColor: "#7C8899")
-  texture*: GLuint
+  texture*: uint32
