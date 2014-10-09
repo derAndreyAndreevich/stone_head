@@ -17,7 +17,7 @@ module.exports = (grunt) ->
       compile:
         command: "nimrod c --out:./build/#{pkg.name} --nimcache:#{TMPDIR}/nimcacne-#{pkg.name} -d:useGlew main.nim"
     watch:
-      files: ["../nimrod/catty/**/*.nim", "**/*.nim"]
+      files: ["../nimrod/catty/**/*.nim", "**/*.nim", "../catty/**/*.nim"]
       tasks: ["mkdir", "shell:compile"]
 
 

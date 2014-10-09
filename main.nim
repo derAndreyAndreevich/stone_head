@@ -29,7 +29,8 @@ application.initialization()
 # glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR)
 # freeSurface(sTexture)
 
-application.loadTexture("texture2.png")
+application.loadTexture("texture2.tga")
+application.loadTexture("wall.png")
 
 
 block gameLoopBlock:
