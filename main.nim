@@ -9,27 +9,14 @@ import
 
 var 
   event: sdl.TEvent
-  gameField = TGameField(fillColor: "#FFA5A5")
-  sTexture = imgLoad("/home/andreysh/Projects/nimrod/stone_head/build/texture2.png")
+  gameField = TGameField(fillColor: "#318BBB")
 
-
-if sTexture == nil:
-  echo "nil"
-  echo GetError()
-else:
-  echo "not nil"
 
 
 application.initialization()
 
-# glGenTextures(1, addr texture)
-# glBindTexture(GL_TEXTURE_2D, texture)
-# glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, sTexture.w, sTexture.h, 0, GL_RGBA, GL_UNSIGNED_BYTE, sTexture.pixels)
-# glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR)
-# glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR)
-# freeSurface(sTexture)
 
-application.loadTexture("texture2.png")
+application.loadTexture("texture2.tif")
 
 
 block gameLoopBlock:
