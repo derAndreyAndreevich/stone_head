@@ -10,39 +10,29 @@ import
 var 
   event: sdl.TEvent
   gameField = TGameField(fillColor: "#FFA5A5")
-  sTexture = imgLoad("/home/andreysh/Projects/nimrod/stone_head/build/texture2.png")
-
-
-if sTexture == nil:
-  echo "nil"
-  echo GetError()
-else:
-  echo "not nil"
-
+  protagonist = TProtagonist(x: 5, y: 5)
 
 application.initialization()
-
-# glGenTextures(1, addr texture)
-# glBindTexture(GL_TEXTURE_2D, texture)
-# glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, sTexture.w, sTexture.h, 0, GL_RGBA, GL_UNSIGNED_BYTE, sTexture.pixels)
-# glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR)
-# glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR)
-# freeSurface(sTexture)
-
-application.loadTexture("texture2.tga")
-application.loadTexture("wall.png")
-
 
 block gameLoopBlock:
   while true:
     block gameCheckEventBlock:
       while sdl.pollEvent(addr event) > 0:
         application.checkEvent(addr event)
+
+        case event.kind
+        of sdl.KEYDOWN:
+          protagonist.onKeyDown(sdl.evKeyboard(addr event).keysym.sym)
+        of sdl.KEYUP: discard
+        else: discard
+
     block gameUpdateBlock:
       discard
     block gameDraw:
       opengl.glClear(opengl.GL_COLOR_BUFFER_BIT or opengl.GL_DEPTH_BUFFER_BIT)
       gameField.draw()
+      protagonist.draw()
+
       sdl.GL_SwapBuffers()
 
     if application.isQuit == true:
