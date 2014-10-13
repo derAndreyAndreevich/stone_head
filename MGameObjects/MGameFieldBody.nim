@@ -8,25 +8,19 @@ import
   MGameFieldType
 
 proc draw*(this: TGameField) =
+  var 
+    x1, y1, x2, y2: int
+    symbol: string
+
   for i in countup(0, 10):
     for j in countup(0, 19):
-      if level1[i][j] == "w":
-        glEnable(GL_TEXTURE_2D)
-        # glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-        # glEnable(GL_BLEND)
-        glBindTexture(GL_TEXTURE_2D, application.getTexture("texture2"))
-        # glRect(j * SCALE, i * SCALE + 1, (j + 1) * SCALE - 1, (i + 1) * SCALE)
-        glRectTexture(j * SCALE, i * SCALE + 1, (j + 1) * SCALE - 1, (i + 1) * SCALE)
-        glDisable(GL_TEXTURE_2D)
-        # glDisable(GL_BLEND)
-      else:
-        "#ffffff".glColor()
-        glRect(j * SCALE, i * SCALE + 1, (j + 1) * SCALE - 1, (i + 1) * SCALE)
+      symbol = level1[i][j]
 
-  this.fillColor.glColor()
+      x1 = j * SCALE
+      y1 = i * SCALE
+      x2 = (j + 1) * SCALE
+      y2 = (i + 1) * SCALE
 
-  for i in countup(0, SCREEN_HEIGHT, SCALE):
-    glLine(0, i, SCREEN_WIDTH, i)
-
-  for i in countup(0, SCREEN_WIDTH, SCALE):
-    glLine(i, 0, i, SCREEN_HEIGHT)
+      if symbol == "w":
+        glBindTexture(GL_TEXTURE_2D, application.getTexture("wall"))
+        glRectTexture(x1, y1, x2, y2)

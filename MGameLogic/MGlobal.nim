@@ -14,5 +14,5 @@ const
   SCREEN_HEIGHT* = SCALE * M
 
 var
-  application* = TCattyApplication(screenWidth: SCREEN_WIDTH, screenHeight: screenHeight, clearColor: "#7C8899")
+  application* = TCattyApplication(screenWidth: SCREEN_WIDTH, screenHeight: screenHeight, clearColor: "#000000")
   texture*: uint32
