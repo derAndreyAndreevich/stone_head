@@ -22,8 +22,7 @@ proc onKeyUp*(this: TProtagonist, key: sdl.TKey) = discard
 proc onKeyIsPressed(this: TProtagonist, key: sdl.TKey) = discard
 
 proc draw*(this: TProtagonist) =
-  glBindTexture(GL_TEXTURE_2D, application.getTexture("protagonist-top-1"))
-  # glBindTexture(GL_TEXTURE_2D, application.getTexture("texture-tga"))
+  glBindTexture(GL_TEXTURE_2D, application.getTexture("protagonist-left-1"))
   glRectTexture(this.x * SCALE, this.y * SCALE, (this.x + 1) * SCALE, (this.y + 1) * SCALE)
   # this.fillColor.glColor()
   # glRect(this.x * SCALE, this.y * SCALE + 1, (this.x + 1) * SCALE - 1, (this.y + 1) * SCALE)
