@@ -27,7 +27,7 @@ block gameLoopBlock:
         else: discard
 
     block gameUpdateBlock:
-      discard
+      protagonist.update()
     block gameDraw:
       opengl.glClear(opengl.GL_COLOR_BUFFER_BIT or opengl.GL_DEPTH_BUFFER_BIT)
       gameField.draw()
@@ -38,6 +38,6 @@ block gameLoopBlock:
     if application.isQuit == true:
       break gameLoopBlock
 
-    sdl.delay(10)
+    sdl.delay(30)
 
 application.quit()

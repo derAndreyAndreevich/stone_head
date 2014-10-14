@@ -5,7 +5,7 @@ TMPDIR = os.tmpdir()
 
 module.exports = (grunt) ->
   # console.log "nimrod c --out:#{pkg.name} --nimcache:#{TMPDIR} -d:useGlew main.nim"
-  console.log "nimrod c --out:./.build/#{pkg.name} --nimcache:#{TMPDIR}/nimcacne-#{pkg.name} -d:useGlew main.nim"
+  console.log "nimrod c --out:.build/#{pkg.name} --nimcache:#{TMPDIR}/nimcacne-#{pkg.name} -d:useGlew main.nim"
   grunt.initConfig
     mkdir:
       build:
@@ -15,7 +15,7 @@ module.exports = (grunt) ->
       options:
         stderr: true
       compile:
-        command: "nimrod c --out:./.build/#{pkg.name} --nimcache:#{TMPDIR}/nimcacne-#{pkg.name} -d:useGlew main.nim"
+        command: "nimrod c --out:.build/#{pkg.name} --nimcache:#{TMPDIR}/nimcacne-#{pkg.name} -d:useGlew main.nim"
     watch:
       files: ["../nimrod/catty/**/*.nim", "**/*.nim", "../catty/**/*.nim"]
       tasks: ["mkdir", "shell:compile"]
