@@ -1,11 +1,10 @@
 import sdl, sdl_image, opengl, dynobj
-
 import catty.core
 
 import
+  MGameObjects.MGameObjectType, MGameObjects.MGameObjectBody,
   MGameObjects.MGameFieldType, MGameObjects.MGameFieldBody,
   MGameObjects.MProtagonistType, MGameObjects.MProtagonistBody,
-  MGameLogic.MGameObjects,
   MGameLogic.MGameObjectCasting,
   MGameLogic.MGlobal
 
@@ -16,8 +15,8 @@ var
 application.initialization()
 
 gameObjects.add(@[
-  TGameField(kind: gtGameField, fillColor: "#FFA5A5").toGameObject, 
-  TProtagonist(kind: gtProtagonist, x: 7, y: 5).toGameObject
+  TGameField(kind: gtGameField, fillColor: "#FFA5A5").initialization.toGameObject, 
+  TProtagonist(kind: gtProtagonist, x: 7, y: 5).initialization.toGameObject
 ])
 
 
@@ -61,6 +60,7 @@ block gameLoopBlock:
         of gtProtagonist: gameObject.asProtagonist.draw()
         else: discard
 
+      glFlush()
       sdl.GL_SwapBuffers()
 
     if application.isQuit == true:

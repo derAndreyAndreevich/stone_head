@@ -1,22 +1,20 @@
 import sdl, sequtils, opengl, strutils
-
 import catty.core
 
 import
-  MGameLogic.MGameObjects,
+  MProtagonistType,
+  MGameObjectType,
   MGameLogic.MGlobal,
-  MGameLogic.MMaps,
-  MProtagonistType
+  MGameLogic.MMaps
+
+proc initialization*(this: TProtagonist): TProtagonist =
+  return this
 
 proc getCurrentTextureName(this: TProtagonist): string = 
   let direction = $this.direction
-
   result = "protagonist-" + direction[2..direction.len()].toLower() + "-" + this.currentFrameNumber
 
-# proc getX(this: TProtagonist): int
-
-proc isCollisiton(this: TProtagonist, x, y: int): bool = level1[y][x] == "w"
-
+proc isCollisiton(this: TProtagonist, x, y: int): bool = level1[y][x] != "t"
 
 proc onKeyDown*(this: TProtagonist, key: sdl.TKey) =
   if not this.isMoved:

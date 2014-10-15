@@ -1,19 +1,19 @@
-import sdl
+import sdl, opengl
 
 import catty.core
 
 import
-  MGameLogic.MGlobal,
-  MTilesType
+  MTilesType,
+  MGameObjectType,
+  MGameLogic.MGlobal
 
-# proc draw*(this: TTile) =
-#   let
-#     x1 = this.x * SCALE
-#     y1 = this.y * SCALE
-#     x2 = (this.x + 1) * SCALE
-#     y2 = (this.x + 1) * SCALE
+proc initialization*(this: TTile): TTile = 
+  case this.kind
+  of gtTileWall: this.textureName = "wall"
+  else: this.textureName = "tail-" + rand() mod 5
 
-#   case this.tileType
-#   of ttWall: glBindTexture(GL_TEXTURE_2D, application.getTexture("wall"))
-#   of tt
-#   else: discard
+  return this
+
+proc draw*(this: TTile) =
+  glBindTexture(GL_TEXTURE_2D, application.getTexture(this.textureName))
+  glRectTexture(this.x * SCALE, this.y * SCALE, (this.x + 1) * SCALE, (this.y + 1) * SCALE)

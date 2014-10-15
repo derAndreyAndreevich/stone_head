@@ -3,7 +3,7 @@ import opengl
 import catty.core
 
 import 
-  MGameLogic.MGameObjects,
+  MGameObjects.MGameObjectType,
   MGameObjects.MGameFieldType, 
   MGameObjects.MProtagonistType
 

@@ -1,4 +1,4 @@
-import MGameLogic.MGameObjects
+import MGameObjectType
 
 type TProtagonistDirection* = enum pdTop, pdBottom, pdLeft, pdRight
 
