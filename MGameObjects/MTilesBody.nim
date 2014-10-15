@@ -6,7 +6,14 @@ import
   MGameLogic.MGlobal,
   MTilesType
 
-part TileRed:
-  draw:
-    this.fillColor.glColor()
-    glRect(this.x * SCALE, this.y * SCALE + 1, (this.x + 1) * SCALE - 1, (this.y + 1) * SCALE)
+# proc draw*(this: TTile) =
+#   let
+#     x1 = this.x * SCALE
+#     y1 = this.y * SCALE
+#     x2 = (this.x + 1) * SCALE
+#     y2 = (this.x + 1) * SCALE
+
+#   case this.tileType
+#   of ttWall: glBindTexture(GL_TEXTURE_2D, application.getTexture("wall"))
+#   of tt
+#   else: discard

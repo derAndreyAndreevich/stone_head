@@ -24,3 +24,6 @@ proc draw*(this: TGameField) =
       if symbol == "w":
         glBindTexture(GL_TEXTURE_2D, application.getTexture("wall"))
         glRectTexture(x1, y1, x2, y2)
+      elif symbol == "t":
+        glBindTexture(GL_TEXTURE_2D, application.getTexture("tail-" + rand() mod 5))
+        glRectTexture(x1, y1, x2, y2)

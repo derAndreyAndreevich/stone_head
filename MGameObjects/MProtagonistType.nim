@@ -1,6 +1,8 @@
+import MGameLogic.MGameObjects
+
 type TProtagonistDirection* = enum pdTop, pdBottom, pdLeft, pdRight
 
-type TProtagonist* = ref object of TObject
+type TProtagonist* = ref object of TGameObject
   x*, y*, dx*, dy*: int
   fillColor*: string
   isCollision: bool

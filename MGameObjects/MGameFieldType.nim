@@ -1,3 +1,5 @@
-type TGameField* = ref object of TObject
+import MGameLogic.MGameObjects
+
+type TGameField* = ref object of TGameObject
   fillColor*: string
 

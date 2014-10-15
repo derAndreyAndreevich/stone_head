@@ -3,6 +3,7 @@ import opengl
 import catty.core
 
 import 
+  MGameLogic.MGameObjects,
   MGameObjects.MGameFieldType, 
   MGameObjects.MProtagonistType
 
@@ -16,3 +17,4 @@ const
 var
   application* = TCattyApplication(screenWidth: SCREEN_WIDTH, screenHeight: screenHeight, clearColor: "#000000")
   texture*: uint32
+  gameObjects*: seq[TGameObject] = @[]
