@@ -5,7 +5,7 @@ import
   MGameObjects.MGameObjectType, MGameObjects.MGameObjectBody,
   MGameObjects.MGameFieldType, MGameObjects.MGameFieldBody,
   MGameObjects.MProtagonistType, MGameObjects.MProtagonistBody,
-  MGameLogic.MGameObjectCasting,
+  MGameLogic.MCast,
   MGameLogic.MGlobal
 
 

@@ -5,7 +5,7 @@ import
   MGameObjectType,
   MTilesType, MTilesBody,
   MGameLogic.MGlobal,
-  MGameLogic.MGameObjectCasting,
+  MGameLogic.MCast,
   MGameLogic.MMaps
 
 proc initialization*(this: TGameField): TGameField =
@@ -22,10 +22,10 @@ proc initialization*(this: TGameField): TGameField =
       case symbol
       of "w": this.tiles.add(TTile(kind: gtTileWall, x: j, y: i).initialization.toGameObject)
       of "t": this.tiles.add(TTile(kind: gtTile, x: j, y: i).initialization.toGameObject)
-      else: discard
+      else: this.tiles.add(TGameObject(kind: gtNil, x: j, y: i))
 
   return this
 
 proc draw*(this: TGameField) =
-  for t in this.tiles:
+  for t in this.tiles if t.kind == gtTile:
     t.asTile.draw()

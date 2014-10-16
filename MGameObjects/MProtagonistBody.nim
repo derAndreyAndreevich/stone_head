@@ -14,30 +14,30 @@ proc getCurrentTextureName(this: TProtagonist): string =
   let direction = $this.direction
   result = "protagonist-" + direction[2..direction.len()].toLower() + "-" + this.currentFrameNumber
 
-proc isCollisiton(this: TProtagonist, x, y: int): bool = level1[y][x] != "t"
+# proc isCollisiton(this: TProtagonist, x, y: int): bool = level1[y][x] != "t"
 
-proc onKeyDown*(this: TProtagonist, key: sdl.TKey) =
-  if not this.isMoved:
-    case key
-    of k_up, k_w: 
-      if this.y > 0 and not this.isCollisiton(this.x, this.y - 1): 
-        this.direction = pdTop
-        this.isMoved = true
-    of k_down, k_s: 
-      if this.y < M - 1 and not this.isCollisiton(this.x, this.y + 1): 
-        this.direction = pdBottom
-        this.isMoved = true
-    of k_left, k_a: 
-      if this.x > 0 and not this.isCollisiton(this.x - 1, this.y): 
-        this.direction = pdLeft
-        this.isMoved = true
-    of k_right, k_d: 
-      if this.x < N - 1 and not this.isCollisiton(this.x + 1, this.y): 
-        this.direction = pdRight
-        this.isMoved = true
-    else: discard
+# proc onKeyDown*(this: TProtagonist, key: sdl.TKey) =
+#   if not this.isMoved:
+#     case key
+#     of k_up, k_w: 
+#       if this.y > 0 and not this.isCollisiton(this.x, this.y - 1): 
+#         this.direction = pdTop
+#         this.isMoved = true
+#     of k_down, k_s: 
+#       if this.y < M - 1 and not this.isCollisiton(this.x, this.y + 1): 
+#         this.direction = pdBottom
+#         this.isMoved = true
+#     of k_left, k_a: 
+#       if this.x > 0 and not this.isCollisiton(this.x - 1, this.y): 
+#         this.direction = pdLeft
+#         this.isMoved = true
+#     of k_right, k_d: 
+#       if this.x < N - 1 and not this.isCollisiton(this.x + 1, this.y): 
+#         this.direction = pdRight
+#         this.isMoved = true
+#     else: discard
 
-proc onKeyUp*(this: TProtagonist, key: sdl.TKey) = discard
+# proc onKeyUp*(this: TProtagonist, key: sdl.TKey) = discard
 
 proc draw*(this: TProtagonist) =
   let
