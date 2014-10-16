@@ -30,6 +30,7 @@ type
   TGameObjectAnim* = ref object of TGameObject
     cfn*, ticks*: int
     anim*: string
+    isPlay*: bool
     anims*: seq[tuple[name: string, ticks: int, textures: seq[string]]]
 
   TProtagonist* = ref object of TGameObject

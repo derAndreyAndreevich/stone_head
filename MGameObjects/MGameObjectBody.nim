@@ -25,5 +25,10 @@ proc playAnim*(this: TGameObjectAnim, name: string, ticks: int = 0) =
       if a.name == name:
         this.ticks = a.ticks
 
+  this.isPlay = true
+
+proc stopAnim*(this: TGameObjectAnim) =
+  this.isPlay = false
+
 proc update*(this: TGameObjectAnim) =
   if getTicks() - this.ticks > 
