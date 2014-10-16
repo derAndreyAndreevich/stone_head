@@ -1,11 +1,9 @@
 # import catty.mcore.mapplication
 import opengl
-import catty.core
+import catty.core, catty.gameobjects as MCattyGameObjects
 
 import 
-  MGameObjects.MGameObjectType,
-  MGameObjects.MGameFieldType, 
-  MGameObjects.MProtagonistType
+  MGameObjects.MGameObject
 
 const
   N* = 20
@@ -16,5 +14,4 @@ const
 
 var
   application* = TCattyApplication(screenWidth: SCREEN_WIDTH, screenHeight: screenHeight, clearColor: "#000000")
-  texture*: uint32
-  gameObjects*: seq[TGameObject] = @[]
+  gameObjects*: seq[TCattyGameObject] = @[]
