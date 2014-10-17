@@ -6,10 +6,10 @@ import
 import
   MGameObjects.MGameObject,
   MGameObjects.MGameField,
+  MGameObjects.MProtagonist,
   MGameLogic.MCast,
-  MGameLogic.MGlobal
-# MGameObjects.MTiles,
-# MGameObjects.MProtagonist,
+  MGameLogic.MGlobal,
+  MGameLogic.MDispatcher
 
 application.initialization()
 
@@ -17,15 +17,12 @@ type e = enum aa, bb, cc
 
 var 
   event: sdl.TEvent
-
+  dispatcher = TGameDispatcher().initialization
 
 gameObjects.add(@[
-  TGameField(kind: TYPE_GAMEFIELD, isDraw: true, x: 0, y: 0, w: 19 * SCALE, h: 11 * SCALE, texture: application.getTexture("wall")).initialization.toCattyGameObject
+  TGameField().initialization.toCattyGameObject,
+  TProtagonist().initialization.toCattyGameObject
 ])
-
-# var gameField = 
-
-# TProtagonist(kind: TYPE_PROTAGONIST, x: 7, y: 6).initialization.toGameObject
 
 
 block gameLoopBlock:
@@ -36,20 +33,21 @@ block gameLoopBlock:
 
         case event.kind
         of sdl.KEYDOWN:
+          dispatcher.onKeyDown(evKeyboard(addr event).keysym.sym)
+          # for gameObject in gameObjects:
+          #   case gameObject.kind
+          #   of TYPE_GAMEFIELD: gameObject.asGameField.onKeyDown(sdl.evKeyboard(addr event).keysym.sym)
+          #   of TYPE_PROTAGONIST: gameObject.asProtagonist.onKeyDown(sdl.evKeyboard(addr event).keysym.sym)
+          #   else: discard
 
-          for gameObject in gameObjects:
-            case gameObject.kind
-            of TYPE_GAMEFIELD: gameObject.asGameField.onKeyDown(sdl.evKeyboard(addr event).keysym.sym)
-            of TYPE_PROTAGONIST: gameObject.asProtagonist.onKeyDown(sdl.evKeyboard(addr event).keysym.sym)
-            else: discard
+        of sdl.KEYUP: 
 
-        of sdl.KEYUP:
-
-          for gameObject in gameObjects:
-            case gameObject.kind
-            of TYPE_GAMEFIELD: gameObject.asGameField.onKeyUp(sdl.evKeyboard(addr event).keysym.sym)
-            of TYPE_PROTAGONIST: gameObject.asProtagonist.onKeyUp(sdl.evKeyboard(addr event).keysym.sym)
-            else: discard
+          dispatcher.onKeyUp(evKeyboard(addr event).keysym.sym)
+          # for gameObject in gameObjects:
+          #   case gameObject.kind
+          #   of TYPE_GAMEFIELD: gameObject.asGameField.onKeyUp(sdl.evKeyboard(addr event).keysym.sym)
+          #   of TYPE_PROTAGONIST: gameObject.asProtagonist.onKeyUp(sdl.evKeyboard(addr event).keysym.sym)
+          #   else: discard
 
         else: discard
 

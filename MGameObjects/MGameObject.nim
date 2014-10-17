@@ -13,28 +13,26 @@ const
   TYPE_ARIGHT* = 9
   TYPE_AVERTICAL* = 10
   TYPE_AHORIZONTAL* = 11
+  TYPE_SIGHTING* = 12
 
   DIRECTION_NIL* = 0
   DIRECTION_TOP* = 1
   DIRECTION_BOTTOM* = 2
   DIRECTION_LEFT* = 3
-  DIRECTION_RIGTH* = 4
+  DIRECTION_RIGHT* = 4
 
 type
   TTile* = ref object of TCattyGameObject
+    isActive*: bool
 
   TGameField* = ref object of TCattyGameObject
     tiles*: seq[TCattyGameObject]
 
   TProtagonist* = ref object of TCattyGameObject
-    direction: uint32
-    isMoved: bool
+    direction*: uint32
+    isMoved*: bool
+    isActive*: bool
 
-
-# proc initialization*(this: TGameObject): TGameObject {.discardable.} = return this
-
-# proc draw*(this: TGameObject) = 
-# proc update*(this: TGameObject) = this.parent.update
-# proc onKeyDown*(this: TGameObject, key: sdl.TKey) = this.parent.onKeyDown(key)
-# proc onKeyUp*(this: TGameObject, key: sdl.TKey) = this.parent.onKeyUp(key)
-
+  TSighting* = ref object of TCattyGameObject
+    direction*: uint32
+    isActive*: bool

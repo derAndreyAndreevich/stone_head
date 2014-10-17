@@ -12,6 +12,9 @@ const
   SCREEN_WIDTH* = SCALE * N
   SCREEN_HEIGHT* = SCALE * M
 
+type
+  TGameObjects = seq[TCattyGameObject]
+
 var
   application* = TCattyApplication(screenWidth: SCREEN_WIDTH, screenHeight: screenHeight, clearColor: "#000000")
-  gameObjects*: seq[TCattyGameObject] = @[]
+  gameObjects*: TGameObjects = @[]

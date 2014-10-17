@@ -1,107 +1,114 @@
 import sdl
+import catty.core, catty.gameobjects as MCattyGameObjects
 import 
-  MGameObjects.MGameObjectType,
+  MGameObjects.MGameObject,
   MGameObjects.MGameField,
-  MGameObjects.MProtagonistType,
-  MGameObjects.MTilesType,
+  MGameObjects.MProtagonist,
+  MGameObjects.MTiles,
   MCast,
-  MGlobal
+  MGlobal as global
+
+const
+  ACTIVE_PROTAGONIST = 1
+  ACTIVE_TILE = 2
+  ACTIVE_SIGHTING = 3
 
 type
-  TActiveType = enum
-    atProtagonist
-    atArrowTile
-    atSighting
+  TGameDispatcher* = ref object of TCattyGameObject
+    active*: uint32
 
-
-  TGameDispatcherProtagonist* ref object of TObject
-    startX*, startY*, currentX*, currentY*: int
-    isActive: bool
-
-
-  TGameDispatcherGameField* ref object of TObject
-
-
-  TGameDispatcher* = ref object of TGameObject
-    __activeType: TActiveType
-    __protagonist: TProtagonist
-    __tile: TTile
-    __gameField: TGameField
-
-
-proc getTile(this: TGameField, x, y: int = 0): TGameObject =
+proc getTile(this: TGameField, x, y: int = 0): TCattyGameObject =
   for tile in this.tiles:
-    if tile.x = x and tile.y = y:
-      result = tile
-      break
+    if tile.x == x and tile.y == y:
+      return tile
 
-proc isCollision(this: TProtagonist): bool = this.gameField.getTile(x, y).kind in {gtNil, gtWall}
+# proc isCollision(this: TProtagonist): bool = this.gameField.getTile(x, y).kind in {gtNil, gtWall}
 
-proc activeType(this: TGameDispatcher): TActiveType = this.__activeType
-proc `activeType=`(this: TGameDispatcher, value: TActiveType) = this.__activeType = value
+# proc activeType(this: TGameDispatcher): TActiveType = this.__activeType
+# proc `activeType=`(this: TGameDispatcher, value: TActiveType) = this.__activeType = value
 
 proc protagonist(this: TGameDispatcher): TProtagonist = 
-  if this.__protagonist == nil:
-    for go in gameObjects:
-      if go.kind == gtProtagonist:
-        this.__protagonist = go.asProtagonist
-        break
+  for gameObject in global.gameObjects:
+    case gameObject.kind
+    of TYPE_PROTAGONIST: return gameObject.asProtagonist
+    else: discard
 
-  result = this.__protagonist
 
-proc gameField(this: TGameDispatcher): TGameField
-  if this.__gameField == nil:
-    for go in gameObjects:
-      if go.kind == gtGameField:
-        this.__gameField = go.asGameField
-        break
-
-  result = this.__gameField
+proc gameField(this: TGameDispatcher): TGameField =
+  for go in global.gameObjects:
+    case go.kind
+    of TYPE_GAMEFIELD: return go.asGameField
+    else: discard
 
 
 proc tile(this: TGameDispatcher): TTile = 
-  if this.__tile == nil:
-    for go in gameObjects:
-      if go.kind in {gtTileArrowTop, gtTileArrowBottom, gtTileArrowLeft, gtTileArrowRight, gtTileArrowVertical, gtTileArrowHorizontal} and go.asTile.isActive == true:
-        this.__tile = go.asTile
-        break
+    for go in global.gameObjects:
+      case go.kind
+      of TYPE_ATOP, TYPE_ABOTTOM, TYPE_ALEFT, TYPE_ARIGHT, TYPE_AVERTICAL, TYPE_AHORIZONTAL:
+        if go.asTile.isActive: return go.asTile
+      else: discard
 
-  result = this.__tile
-
-proc `tile=`(this: TGameDispatcher, value: TTile) = this.__tile = value
-
-proc onKeyDownProtagonist(this: TGameDispatcher, key: sdl.TKey) =
-
-  if not this.protagonist.isMoved:
-    let 
-      x = this.protagonist.y
-      y = this.protagonist.y
-
-    case key
-    of k_up, k_w: 
-      if this.protagonist.y > 0 and not this.protagonist.isCollisiton(x, y - 1): 
-        this.direction = pdTop
-        this.isMoved = true
-    of k_down, k_s: 
-      if this.y < M - 1 and not this.protagonist.isCollisiton(x, y + 1): 
-        this.direction = pdBottom
-        this.isMoved = true
-    of k_left, k_a: 
-      if this.x > 0 and not this.protagonist.isCollisiton(x - 1, y): 
-        this.direction = pdLeft
-        this.isMoved = true
-    of k_right, k_d: 
-      if this.x < N - 1 and not this.protagonist.isCollisiton(x + 1, y): 
-        this.direction = pdRight
-        this.isMoved = true
+proc sighting(this: TGameDispatcher): TSighting =
+  for go in global.gameObjects:
+    case go.kind
+    of TYPE_SIGHTING: return go.asSighting
     else: discard
 
+proc onKeyDownProtagonist(this: TGameDispatcher, key: sdl.TKey) =
+  var self = this.protagonist
+
+  case key
+  of K_UP, K_W:
+    self.playAnim("top")
+    self.direction = DIRECTION_TOP
+  of K_DOWN, K_S:
+    self.playAnim("bottom")
+    self.direction = DIRECTION_BOTTOM
+  of K_LEFT, K_A:
+    self.playAnim("left")
+    self.direction = DIRECTION_LEFT
+  of K_RIGHT, K_D:
+    self.playAnim("rigth")
+    self.direction = DIRECTION_RIGHT
+  of K_SPACE:
+    self.stopAnim()
+  else: discard
+
+  self.texture = application.getTexture("protagonist-" + self.direction + "-0")
+
 proc onKeyDownArrowTile(this: TGameDispatcher, key: sdl.TKey) = discard
-proc onKeyDownSighting(this: TGameDispatcher, key: sdl.TKey) = discard
+
+proc onKeyDownSighting(this: TGameDispatcher, key: sdl.TKey) =
+  var self = this.sighting
+
+  case key
+  of K_UP, K_W:
+    self.playAnim("top")
+    self.direction = DIRECTION_TOP
+  of K_DOWN, K_S:
+    self.playAnim("bottom")
+    self.direction = DIRECTION_BOTTOM
+  of K_LEFT, K_A:
+    self.playAnim("left")
+    self.direction = DIRECTION_LEFT
+  of K_RIGHT, K_D:
+    self.playAnim("rigth")
+    self.direction = DIRECTION_RIGHT
+  of K_SPACE:
+    self.stopAnim()
+  else: discard
+
+proc initialization*(this: TGameDispatcher): TGameDispatcher {.discardable.} = 
+  this.active = ACTIVE_PROTAGONIST
+  return this
 
 proc onKeyDown*(this: TGameDispatcher, key: sdl.TKey) =
-  case this.active
-  of atProtagonist: this.onKeyDownProtagonist(key)
-  of atArrowTile: this.onKeyDownProtagonist(key)
-  of atSighting: this.onKeyDownSighting(key)
+  echo "TGameDispatcher: onKeyDown"
+  # case this.active
+  # of ACTIVE_PROTAGONIST: echo "TGameDispatcher: ACTIVE_PROTAGONIST"
+  # of ACTIVE_TILE: echo "TGameDispatcher: ACTIVE_TILE"
+  # of ACTIVE_SIGHTING: echo "TGameDispatcher: ACTIVE_SIGHTING"
+  # else: discard
 
+proc toCattyGameObject*(this: TGameDispatcher): TCattyGameObject = cast[TCattyGameObject](this)
+proc asGameDispatcher*(this: TCattyGameObject): TGameDispatcher = cast[TGameDispatcher](this)

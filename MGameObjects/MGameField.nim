@@ -17,6 +17,14 @@ import
 proc initialization*(this: TGameField): TGameField {.discardable.} = 
   cast[TCattyGameObject](this).initialization()
 
+  this.kind = TYPE_GAMEFIELD
+  this.isDraw = true
+  this.x = 0
+  this.y = 0
+  this.w = 20 * SCALE
+  this.h = 11 * SCALE
+  this.texture = application.getTexture("wall")
+  
   this.tiles = @[]
 
   for i in countup(0, 10):
@@ -41,21 +49,14 @@ proc initialization*(this: TGameField): TGameField {.discardable.} =
         TTile(x: x, y: y, lx: lx, ly: ly).initialization.toCattyGameObject
       )
 
-  this.kind = TYPE_GAMEFIELD
 
   return this
 
 proc draw*(this: TGameField) =
-  cast[TCattyGameObject](this).draw()
-  # for tile in this.tiles:
-  #   tile.asTile.draw
+  cast[TCattyGameObject](this).draw
 
-
-
-
-  # this.draw()
-  # glBindTexture(GL_TEXTURE_2D, this.texture)
-  # glRectTexture(this.x, this.y, this.x + this.w, this.y + this.h)
+  for tile in this.tiles:
+    tile.asTile.draw
 
 proc update*(this: TGameField) = discard
 proc onKeyDown*(this: TGameField, key: sdl.TKey) = discard
