@@ -33,21 +33,12 @@ block gameLoopBlock:
 
         case event.kind
         of sdl.KEYDOWN:
+
           dispatcher.onKeyDown(evKeyboard(addr event).keysym.sym)
-          # for gameObject in gameObjects:
-          #   case gameObject.kind
-          #   of TYPE_GAMEFIELD: gameObject.asGameField.onKeyDown(sdl.evKeyboard(addr event).keysym.sym)
-          #   of TYPE_PROTAGONIST: gameObject.asProtagonist.onKeyDown(sdl.evKeyboard(addr event).keysym.sym)
-          #   else: discard
 
         of sdl.KEYUP: 
 
           dispatcher.onKeyUp(evKeyboard(addr event).keysym.sym)
-          # for gameObject in gameObjects:
-          #   case gameObject.kind
-          #   of TYPE_GAMEFIELD: gameObject.asGameField.onKeyUp(sdl.evKeyboard(addr event).keysym.sym)
-          #   of TYPE_PROTAGONIST: gameObject.asProtagonist.onKeyUp(sdl.evKeyboard(addr event).keysym.sym)
-          #   else: discard
 
         else: discard
 

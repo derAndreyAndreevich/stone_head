@@ -13,7 +13,10 @@ const
   TYPE_ARIGHT* = 9
   TYPE_AVERTICAL* = 10
   TYPE_AHORIZONTAL* = 11
-  TYPE_SIGHTING* = 12
+  TYPE_AALL* = 12
+  TYPE_SIGHTING* = 13
+  TYPE_RESPAWN* = 14
+  TYPE_EXIT* = 15
 
   DIRECTION_NIL* = 0
   DIRECTION_TOP* = 1
@@ -28,7 +31,9 @@ const
 
 type
   TTile* = ref object of TCattyGameObject
-    isActive*: bool
+    direction*: uint32
+    offsetStop*: int
+    isMoving*, isActive*: bool
 
   TGameField* = ref object of TCattyGameObject
     tiles*: seq[TCattyGameObject]
@@ -40,5 +45,5 @@ type
 
   TSighting* = ref object of TCattyGameObject
     direction*: uint32
-    isActive*, isMoving*: bool
     offsetStop*: int
+    isActive*, isMoving*: bool
