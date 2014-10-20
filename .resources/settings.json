@@ -3,6 +3,7 @@
         "isFull": false
     },
     "textures": [
+        {"source": "backgound.tga", "name": "bg"},
         {"source": "wall.png", "name": "wall"},
 
         {"source": "protagonist.tga", "name": "protagonist-top-0", "x": 0,   "y": 0, "width": 64, "height": 64},

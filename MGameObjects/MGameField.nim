@@ -7,13 +7,6 @@ import
   MGameObject,
   MTiles
 
-
-# catty.gameobjects,
-# MGameLogic.MMaps,
-# MGameLogic.MCast,
-# MGameLogic.MGlobal,
-# MTiles
-
 proc initialization*(this: TGameField): TGameField {.discardable.} = 
   cast[TCattyGameObject](this).initialization()
 
@@ -23,14 +16,14 @@ proc initialization*(this: TGameField): TGameField {.discardable.} =
   this.y = 0
   this.w = 20 * SCALE
   this.h = 11 * SCALE
-  this.texture = application.getTexture("wall")
+  this.texture = application.getTexture("bg")
   
   this.tiles = @[]
 
   for i in countup(0, 10):
     for j in countup(0, 19):
       let 
-        symbol = level3[i][j]
+        symbol = level1[i][j]
         x = j * SCALE
         y = i * SCALE
         w = SCALE

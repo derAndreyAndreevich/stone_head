@@ -21,6 +21,11 @@ const
   DIRECTION_LEFT* = 3
   DIRECTION_RIGHT* = 4
 
+  ANIM_PROTAGONIST_TOP* = 1
+  ANIM_PROTAGONIST_BOTTOM* = 2
+  ANIM_PROTAGONIST_LEFT* = 3
+  ANIM_PROTAGONIST_RIGHT* = 4
+
 type
   TTile* = ref object of TCattyGameObject
     isActive*: bool
@@ -30,9 +35,10 @@ type
 
   TProtagonist* = ref object of TCattyGameObject
     direction*: uint32
-    isMoved*: bool
-    isActive*: bool
+    offsetStop*: int
+    isMoving*, isActive*: bool
 
   TSighting* = ref object of TCattyGameObject
     direction*: uint32
-    isActive*: bool
+    isActive*, isMoving*: bool
+    offsetStop*: int

@@ -19,7 +19,6 @@ module.exports = (grunt) ->
       files: ["../nimrod/catty/**/*.nim", "**/*.nim", "../catty/**/*.nim"]
       tasks: ["mkdir", "shell:compile"]
 
-
   grunt.loadNpmTasks "grunt-shell"
   grunt.loadNpmTasks "grunt-mkdir"
   grunt.loadNpmTasks "grunt-contrib-copy"

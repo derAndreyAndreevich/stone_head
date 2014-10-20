@@ -7,13 +7,12 @@ import
   MGameObjects.MGameObject,
   MGameObjects.MGameField,
   MGameObjects.MProtagonist,
+  MGameObjects.MSighting,
   MGameLogic.MCast,
   MGameLogic.MGlobal,
   MGameLogic.MDispatcher
 
 application.initialization()
-
-type e = enum aa, bb, cc
 
 var 
   event: sdl.TEvent
@@ -21,7 +20,8 @@ var
 
 gameObjects.add(@[
   TGameField().initialization.toCattyGameObject,
-  TProtagonist().initialization.toCattyGameObject
+  TProtagonist().initialization.toCattyGameObject,
+  TSighting().initialization.toCattyGameObject
 ])
 
 
@@ -57,6 +57,7 @@ block gameLoopBlock:
         case gameObject.kind
         of TYPE_GAMEFIELD: gameObject.asGameField.update()
         of TYPE_PROTAGONIST: gameObject.asProtagonist.update()
+        of TYPE_SIGHTING: gameObject.asSighting.update()
         else: discard
 
     block gameDraw:
@@ -67,6 +68,7 @@ block gameLoopBlock:
         case gameObject.kind
         of TYPE_GAMEFIELD: gameObject.asGameField.draw()
         of TYPE_PROTAGONIST: gameObject.asProtagonist.draw()
+        of TYPE_SIGHTING: gameObject.asSighting.draw()
         else: discard
 
       glFlush()
@@ -75,6 +77,6 @@ block gameLoopBlock:
     if application.isQuit == true:
       break gameLoopBlock
 
-    sdl.delay(30)
+    sdl.delay(40)
 
 application.quit()
