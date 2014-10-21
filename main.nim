@@ -16,13 +16,15 @@ application.initialization()
 
 var 
   event: sdl.TEvent
-  dispatcher = TGameDispatcher().initialization
+  dispatcher: TGameDispatcher
 
 gameObjects.add(@[
   TGameField().initialization.toCattyGameObject,
   TProtagonist().initialization.toCattyGameObject,
   TSighting().initialization.toCattyGameObject
 ])
+
+dispatcher = TGameDispatcher().initialization
 
 
 block gameLoopBlock:

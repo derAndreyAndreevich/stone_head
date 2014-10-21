@@ -10,8 +10,8 @@ proc initialization*(this: TTile): TTile {.discardable.} =
   case this.kind
   of TYPE_TILE_WALL: this.texture = application.getTexture("wall")
   of TYPE_TILE: this.texture = application.getTexture("tail-" + rand() mod 5)
-  of TYPE_RESPAWN: this.texture = application.getTexture("tail-" + rand() mod 5)
-  of TYPE_EXIT: this.texture = application.getTexture("tail-" + rand() mod 5)
+  of TYPE_RESPAWN: this.texture = application.getTexture("respawn")
+  of TYPE_EXIT: this.texture = application.getTexture("exit")
   of TYPE_ALEFT: this.texture = application.getTexture("arrow-left")
   of TYPE_ARIGHT: this.texture = application.getTexture("arrow-right")
   of TYPE_ATOP: this.texture = application.getTexture("arrow-top")

@@ -37,6 +37,7 @@ type
 
   TGameField* = ref object of TCattyGameObject
     tiles*: seq[TTile]
+    map*: int
 
   TProtagonist* = ref object of TCattyGameObject
     direction*, stepArrowType*: uint32
