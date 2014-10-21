@@ -33,40 +33,40 @@ proc initialization*(this: TGameField): TGameField {.discardable.} =
 
       case symbol
       of "w": this.tiles.add(
-        TTile(kind: TYPE_TILE_WALL, x: x, y: y, w: w, h: h, lx: lx, ly: ly, isDraw: true).initialization.toCattyGameObject
+        TTile(kind: TYPE_TILE_WALL, x: x, y: y, w: w, h: h, lx: lx, ly: ly, isDraw: true).initialization
       )
       of "t": this.tiles.add(
-        TTile(kind: TYPE_TILE, x: x, y: y, w: w, h: h, lx: lx, ly: ly, isDraw: true).initialization.toCattyGameObject
+        TTile(kind: TYPE_TILE, x: x, y: y, w: w, h: h, lx: lx, ly: ly, isDraw: true).initialization
       )
       of "r": this.tiles.add(
-        TTile(kind: TYPE_RESPAWN, x: x, y: y, w: w, h: h, lx: lx, ly: ly, isDraw: true).initialization.toCattyGameObject
+        TTile(kind: TYPE_RESPAWN, x: x, y: y, w: w, h: h, lx: lx, ly: ly, isDraw: true).initialization
       )
       of "e": this.tiles.add(
-        TTile(kind: TYPE_EXIT, x: x, y: y, w: w, h: h, lx: lx, ly: ly, isDraw: true).initialization.toCattyGameObject
+        TTile(kind: TYPE_EXIT, x: x, y: y, w: w, h: h, lx: lx, ly: ly, isDraw: true).initialization
       )
       of "al": this.tiles.add(
-        TTile(kind: TYPE_ALEFT, x: x, y: y, w: w, h: h, lx: lx, ly: ly, isDraw: true).initialization.toCattyGameObject
+        TTile(kind: TYPE_ALEFT, x: x, y: y, w: w, h: h, lx: lx, ly: ly, isDraw: true).initialization
       )
       of "ar": this.tiles.add(
-        TTile(kind: TYPE_ARIGHT, x: x, y: y, w: w, h: h, lx: lx, ly: ly, isDraw: true).initialization.toCattyGameObject
+        TTile(kind: TYPE_ARIGHT, x: x, y: y, w: w, h: h, lx: lx, ly: ly, isDraw: true).initialization
       )
       of "at": this.tiles.add(
-        TTile(kind: TYPE_ATOP, x: x, y: y, w: w, h: h, lx: lx, ly: ly, isDraw: true).initialization.toCattyGameObject
+        TTile(kind: TYPE_ATOP, x: x, y: y, w: w, h: h, lx: lx, ly: ly, isDraw: true).initialization
       )
       of "ab": this.tiles.add(
-        TTile(kind: TYPE_ABOTTOM, x: x, y: y, w: w, h: h, lx: lx, ly: ly, isDraw: true).initialization.toCattyGameObject
+        TTile(kind: TYPE_ABOTTOM, x: x, y: y, w: w, h: h, lx: lx, ly: ly, isDraw: true).initialization
       )
       of "ah": this.tiles.add(
-        TTile(kind: TYPE_AHORIZONTAL, x: x, y: y, w: w, h: h, lx: lx, ly: ly, isDraw: true).initialization.toCattyGameObject
+        TTile(kind: TYPE_AHORIZONTAL, x: x, y: y, w: w, h: h, lx: lx, ly: ly, isDraw: true).initialization
       )
       of "av": this.tiles.add(
-        TTile(kind: TYPE_AVERTICAL, x: x, y: y, w: w, h: h, lx: lx, ly: ly, isDraw: true).initialization.toCattyGameObject
+        TTile(kind: TYPE_AVERTICAL, x: x, y: y, w: w, h: h, lx: lx, ly: ly, isDraw: true).initialization
       )
       of "aa": this.tiles.add(
-        TTile(kind: TYPE_AALL, x: x, y: y, w: w, h: h, lx: lx, ly: ly, isDraw: true).initialization.toCattyGameObject
+        TTile(kind: TYPE_AALL, x: x, y: y, w: w, h: h, lx: lx, ly: ly, isDraw: true).initialization
       )
       else: this.tiles.add(
-        TTile(x: x, y: y, lx: lx, ly: ly).initialization.toCattyGameObject
+        TTile(x: x, y: y, lx: lx, ly: ly).initialization
       )
 
 
@@ -76,13 +76,13 @@ proc draw*(this: TGameField) =
   cast[TCattyGameObject](this).draw
 
   for tile in this.tiles:
-    tile.asTile.draw
+    tile.draw
 
 proc update*(this: TGameField) =
   cast[TCattyGameObject](this).update
 
   for tile in this.tiles:
-    tile.asTile.update
+    tile.update
 
 proc onKeyDown*(this: TGameField, key: sdl.TKey) = discard
 proc onKeyUp*(this: TGameField, key: sdl.TKey) = discard

@@ -36,12 +36,12 @@ type
     isMoving*, isActive*: bool
 
   TGameField* = ref object of TCattyGameObject
-    tiles*: seq[TCattyGameObject]
+    tiles*: seq[TTile]
 
   TProtagonist* = ref object of TCattyGameObject
-    direction*: uint32
+    direction*, stepArrowType*: uint32
     offsetStop*: int
-    isMoving*, isActive*: bool
+    isMoving*, isActive*, isStepArrow*: bool
 
   TSighting* = ref object of TCattyGameObject
     direction*: uint32
