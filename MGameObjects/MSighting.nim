@@ -6,6 +6,10 @@ import
   MGameLogic.MGlobal
 
 
+proc show*(this: TSighting) = this.isDraw = true
+proc hide*(this: TSighting) = this.isDraw = false
+proc toggleDraw*(this: TSighting) = this.isDraw = not this.isDraw
+
 proc initialization*(this: TSighting): TSighting {.discardable.} = 
 
   cast[TCattyGameObject](this).initialization

@@ -42,6 +42,11 @@ block gameLoopBlock:
 
           dispatcher.onKeyUp(evKeyboard(addr event).keysym.sym)
 
+        of sdl.USEREVENT:
+
+          dispatcher.onUserEvent(cast[sdl.TUserEvent](event))
+          # echo cast[sdl.TUserEvent](event).code, " ", cast[TEndMoveEvent](cast[sdl.TUserEvent](event).data1)
+
         else: discard
 
     block gameUpdateBlock:
