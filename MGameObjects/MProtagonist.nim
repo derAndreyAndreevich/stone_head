@@ -16,10 +16,9 @@ proc initialization*(this: TProtagonist): TProtagonist {.discardable.} =
   this.isUpdate = true
   this.isActive = true
 
-  this.x = SCALE * 14
-  this.y = SCALE * 2
-  this.w = SCALE
-  this.h = SCALE
+  this.coords = (SCALE * 14, SCALE * 2)
+  this.size = (SCALE, SCALE)
+
   this.direction = DIRECTION_BOTTOM
   this.texture = application.getTexture("protagonist-" + this.direction + "-0")
   this.sleep = 80
@@ -61,45 +60,55 @@ proc initialization*(this: TProtagonist): TProtagonist {.discardable.} =
 
   return this
 
+proc event_endMoveProtagonist(this: TProtagonist) = 
+
+  var
+    data = cast[ptr TEndMoveEvent](TEndMoveEvent(x: this.coords.x, y: this.coords.y))
+    event = sdl.TUserEvent(
+      kind: sdl.USEREVENT, code: EVENT_PROTAGONIST_END_MOVE, data1: data
+    )
+
+  discard sdl.pushEvent(cast[sdl.PEvent](addr event))
+
+proc endUpdate(this: TProtagonist) = 
+  this.stopAnim
+  this.coords = this.offsetStop
+  this.isMoving = false
+  this.event_endMoveProtagonist
+  
+
 proc update*(this: TProtagonist) =
   cast[TCattyGameObject](this).update
+
   if this.isMoving:
     case this.direction:
     of DIRECTION_TOP: 
 
-      if this.y - this.dy > this.offsetStop:
-        this.y -= this.dy
+      if this.coords - this.delta > this.offsetStop:
+        this.coords -= this.delta
       else:
-        this.stopAnim
-        this.y = this.offsetStop
-        this.isMoving = false
+        this.endUpdate
 
     of DIRECTION_BOTTOM: 
 
-      if this.y + this.dy < this.offsetStop:
-        this.y += this.dy
+      if this.coords + this.delta < this.offsetStop:
+        this.coords += this.delta
       else:
-        this.stopAnim
-        this.y = this.offsetStop
-        this.isMoving = false
+        this.endUpdate
 
     of DIRECTION_LEFT: 
 
-      if this.x - this.dx > this.offsetStop:
-        this.x -= this.dx
+      if this.coords - this.delta > this.offsetStop:
+        this.coords -= this.delta
       else:
-        this.stopAnim
-        this.x = this.offsetStop
-        this.isMoving = false
+        this.endUpdate
 
     of DIRECTION_RIGHT: 
 
-      if this.x + this.dx < this.offsetStop:
-        this.x += this.dx
+      if this.coords + this.delta < this.offsetStop:
+        this.coords += this.delta
       else:
-        this.stopAnim
-        this.x = this.offsetStop
-        this.isMoving = false
+        this.endUpdate
 
     else: discard
 

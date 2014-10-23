@@ -8,6 +8,14 @@ import
   MGameObject,
   MTiles
 
+proc `[]`*(this: TTileList, x, y: int): TTile =
+  for tile in this:
+    if tile.coords == (x, y) and tile.kind > 0:
+      return tile
+
+  return TTile(coords: (x, y))
+
+
 proc loadMap*(this: TGameField, id: int) = 
   let 
     settingsFile = os.getAppDir() / "settings.json"
@@ -30,96 +38,42 @@ proc loadMap*(this: TGameField, id: int) =
 
       case symbol
       of "w": this.tiles.add(
-        TTile(kind: TYPE_TILE_WALL, x: x, y: y, w: w, h: h, lx: lx, ly: ly, isDraw: true).initialization
+        TTile(kind: TYPE_TILE_WALL, isDraw: true, coords: (x, y), size: (w, h)).initialization
       )
       of "t": this.tiles.add(
-        TTile(kind: TYPE_TILE, x: x, y: y, w: w, h: h, lx: lx, ly: ly, isDraw: true).initialization
+        TTile(kind: TYPE_TILE, isDraw: true, coords: (x, y), size: (w, h)).initialization
       )
       of "r": this.tiles.add(
-        TTile(kind: TYPE_RESPAWN, x: x, y: y, w: w, h: h, lx: lx, ly: ly, isDraw: true).initialization
+        TTile(kind: TYPE_RESPAWN, isDraw: true, coords: (x, y), size: (w, h)).initialization
       )
       of "e": this.tiles.add(
-        TTile(kind: TYPE_EXIT, x: x, y: y, w: w, h: h, lx: lx, ly: ly, isDraw: true).initialization
+        TTile(kind: TYPE_EXIT, isDraw: true, coords: (x, y), size: (w, h)).initialization
       )
       of "al": this.tiles.add(
-        TTile(kind: TYPE_ALEFT, x: x, y: y, w: w, h: h, lx: lx, ly: ly, isDraw: true).initialization
+        TTile(kind: TYPE_ALEFT, isDraw: true, coords: (x, y), size: (w, h)).initialization
       )
       of "ar": this.tiles.add(
-        TTile(kind: TYPE_ARIGHT, x: x, y: y, w: w, h: h, lx: lx, ly: ly, isDraw: true).initialization
+        TTile(kind: TYPE_ARIGHT, isDraw: true, coords: (x, y), size: (w, h)).initialization
       )
       of "at": this.tiles.add(
-        TTile(kind: TYPE_ATOP, x: x, y: y, w: w, h: h, lx: lx, ly: ly, isDraw: true).initialization
+        TTile(kind: TYPE_ATOP, isDraw: true, coords: (x, y), size: (w, h)).initialization
       )
       of "ab": this.tiles.add(
-        TTile(kind: TYPE_ABOTTOM, x: x, y: y, w: w, h: h, lx: lx, ly: ly, isDraw: true).initialization
+        TTile(kind: TYPE_ABOTTOM, isDraw: true, coords: (x, y), size: (w, h)).initialization
       )
       of "ah": this.tiles.add(
-        TTile(kind: TYPE_AHORIZONTAL, x: x, y: y, w: w, h: h, lx: lx, ly: ly, isDraw: true).initialization
+        TTile(kind: TYPE_AHORIZONTAL, isDraw: true, coords: (x, y), size: (w, h)).initialization
       )
       of "av": this.tiles.add(
-        TTile(kind: TYPE_AVERTICAL, x: x, y: y, w: w, h: h, lx: lx, ly: ly, isDraw: true).initialization
+        TTile(kind: TYPE_AVERTICAL, isDraw: true, coords: (x, y), size: (w, h)).initialization
       )
       of "aa": this.tiles.add(
-        TTile(kind: TYPE_AALL, x: x, y: y, w: w, h: h, lx: lx, ly: ly, isDraw: true).initialization
+        TTile(kind: TYPE_AALL, isDraw: true, coords: (x, y), size: (w, h)).initialization
       )
       else: this.tiles.add(
-        TTile(x: x, y: y, lx: lx, ly: ly).initialization
+        TTile(coords: (x, y), size: (w, h)).initialization
       )
 
-
-  # for key, value in settingsFile.parseFile().pairs():
-  #   case key
-  #   of "maps":
-  #     for index in countup(0, value.len() - 1):
-  #       if index == id:
-  #         for i in countup(0, 10):
-  #           for j in countup(0, 19):
-  #             let 
-  #               symbol = value[][i][j].str
-  #               x = j * SCALE
-  #               y = i * SCALE
-  #               w = SCALE
-  #               h = SCALE
-  #               lx = j
-  #               ly = i
-
-  #             case symbol
-  #             of "w": this.tiles.add(
-  #               TTile(kind: TYPE_TILE_WALL, x: x, y: y, w: w, h: h, lx: lx, ly: ly, isDraw: true).initialization
-  #             )
-  #             of "t": this.tiles.add(
-  #               TTile(kind: TYPE_TILE, x: x, y: y, w: w, h: h, lx: lx, ly: ly, isDraw: true).initialization
-  #             )
-  #             of "r": this.tiles.add(
-  #               TTile(kind: TYPE_RESPAWN, x: x, y: y, w: w, h: h, lx: lx, ly: ly, isDraw: true).initialization
-  #             )
-  #             of "e": this.tiles.add(
-  #               TTile(kind: TYPE_EXIT, x: x, y: y, w: w, h: h, lx: lx, ly: ly, isDraw: true).initialization
-  #             )
-  #             of "al": this.tiles.add(
-  #               TTile(kind: TYPE_ALEFT, x: x, y: y, w: w, h: h, lx: lx, ly: ly, isDraw: true).initialization
-  #             )
-  #             of "ar": this.tiles.add(
-  #               TTile(kind: TYPE_ARIGHT, x: x, y: y, w: w, h: h, lx: lx, ly: ly, isDraw: true).initialization
-  #             )
-  #             of "at": this.tiles.add(
-  #               TTile(kind: TYPE_ATOP, x: x, y: y, w: w, h: h, lx: lx, ly: ly, isDraw: true).initialization
-  #             )
-  #             of "ab": this.tiles.add(
-  #               TTile(kind: TYPE_ABOTTOM, x: x, y: y, w: w, h: h, lx: lx, ly: ly, isDraw: true).initialization
-  #             )
-  #             of "ah": this.tiles.add(
-  #               TTile(kind: TYPE_AHORIZONTAL, x: x, y: y, w: w, h: h, lx: lx, ly: ly, isDraw: true).initialization
-  #             )
-  #             of "av": this.tiles.add(
-  #               TTile(kind: TYPE_AVERTICAL, x: x, y: y, w: w, h: h, lx: lx, ly: ly, isDraw: true).initialization
-  #             )
-  #             of "aa": this.tiles.add(
-  #               TTile(kind: TYPE_AALL, x: x, y: y, w: w, h: h, lx: lx, ly: ly, isDraw: true).initialization
-  #             )
-  #             else: this.tiles.add(
-  #               TTile(x: x, y: y, lx: lx, ly: ly).initialization
-  #             )
 
 proc initialization*(this: TGameField): TGameField {.discardable.} = 
   cast[TCattyGameObject](this).initialization()
@@ -128,10 +82,8 @@ proc initialization*(this: TGameField): TGameField {.discardable.} =
 
   this.kind = TYPE_GAMEFIELD
   this.isDraw = true
-  this.x = 0
-  this.y = 0
-  this.w = 20 * SCALE
-  this.h = 11 * SCALE
+  this.coords = (0, 0)
+  this.size = (20 * SCALE, 11 * SCALE)
   this.texture = application.getTexture("bg")
   
   this.loadMap(0)

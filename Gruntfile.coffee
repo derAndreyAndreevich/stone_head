@@ -4,7 +4,7 @@ TMPDIR = os.tmpdir()
 
 
 module.exports = (grunt) ->
-  console.log "nimrod c --out:.build/#{pkg.name} --nimcache:#{TMPDIR}/nimcacne-#{pkg.name} -d:useGlew --verbosity:3 main.nim"
+  console.log "nimrod c --out:.build/#{pkg.name} --nimcache:#{TMPDIR}/nimcacne-#{pkg.name} -d:useGlew -d:release --verbosity:3 main.nim"
   grunt.initConfig
     mkdir:
       build:

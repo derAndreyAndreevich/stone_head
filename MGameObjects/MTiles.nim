@@ -28,34 +28,34 @@ proc update*(this: TTile) =
     case this.direction:
     of DIRECTION_TOP: 
 
-      if this.y - this.dy > this.offsetStop:
-        this.y -= this.dy
+      if this.coords - this.delta > this.offsetStop:
+        this.coords -= this.delta
       else:
-        this.y = this.offsetStop
+        this.coords = this.offsetStop
         this.isMoving = false
 
     of DIRECTION_BOTTOM: 
 
-      if this.y + this.dy < this.offsetStop:
-        this.y += this.dy
+      if this.coords + this.delta < this.offsetStop:
+        this.coords += this.delta
       else:
-        this.y = this.offsetStop
+        this.coords = this.offsetStop
         this.isMoving = false
 
     of DIRECTION_LEFT: 
 
-      if this.x - this.dx > this.offsetStop:
-        this.x -= this.dx
+      if this.coords - this.delta > this.offsetStop:
+        this.coords -= this.delta
       else:
-        this.x = this.offsetStop
+        this.coords = this.offsetStop
         this.isMoving = false
 
     of DIRECTION_RIGHT: 
 
-      if this.x + this.dx < this.offsetStop:
-        this.x += this.dx
+      if this.coords + this.delta < this.offsetStop:
+        this.coords += this.delta
       else:
-        this.x = this.offsetStop
+        this.coords = this.offsetStop
         this.isMoving = false
 
     else: discard

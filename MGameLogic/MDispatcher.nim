@@ -16,6 +16,10 @@ const
   ANIM_OFFSET_PROTAGONIST = 8
   ANIM_OFFSET_SIGHTING = 2
 
+  ARROWS_SET = {TYPE_ALEFT, TYPE_ARIGHT, TYPE_ATOP, TYPE_ABOTTOM, TYPE_AHORIZONTAL, TYPE_AVERTICAL, TYPE_AVERTICAL}
+  ARROWS_HORIZONTAL_SET = {TYPE_ALEFT, TYPE_ARIGHT, TYPE_AHORIZONTAL, TYPE_AALL}
+  ARROWS_VERTICAL_SET = {TYPE_ATOP, TYPE_ABOTTOM, TYPE_AVERTICAL, TYPE_AALL}
+
 type
   TGameDispatcher* = ref object of TCattyGameObject
     active*: uint32
@@ -36,9 +40,10 @@ proc gameField(this: TGameDispatcher): TGameField =
 
 
 proc tile(this: TGameDispatcher): TTile = 
-    for tile in this.gameField.tiles:
-      if tile.kind in {TYPE_ATOP, TYPE_ABOTTOM, TYPE_ALEFT, TYPE_ARIGHT, TYPE_AVERTICAL, TYPE_AHORIZONTAL, TYPE_AALL} and tile.isActive:
-         return tile
+  for tile in this.gameField.tiles:
+    if tile.kind in ARROWS_SET and tile.isActive:
+       return tile
+
 
 proc sighting(this: TGameDispatcher): TSighting =
   for go in global.gameObjects:
@@ -46,36 +51,46 @@ proc sighting(this: TGameDispatcher): TSighting =
     of TYPE_SIGHTING: return go.asSighting
     else: discard
 
-proc getTile(this: TGameField, code: string = "none", x, y: int = 0): TTile =
-  for tile in this.tiles:
-    if tile.x == x and tile.y == y and tile.kind > 0:
-      return tile
+proc activate(this: TGameDispatcher, activateType: uint32 = ACTIVE_PROTAGONIST, x, y: int = 0) = 
+  case activateType
+  of ACTIVE_PROTAGONIST:
+    this.sighting.hide
 
-  return TTile(x: x, y: y).initialization
+  of ACTIVE_SIGHTING:
+    this.sighting.show
+    this.sighting.coords = if this.active in {ACTIVE_PROTAGONIST}: this.protagonist.coords else: this.tile.coords
+
+  of ACTIVE_TILE:
+    this.sighting.hide
+    this.tile.isActive = false
+    this.gameField.tiles[x, y].isActive = true
+
+  else: discard
+
+  this.active = activateType
 
 proc getRespawnPoint(this: TGameField): TTile = 
-  result = TTile(x: 0, y: 0).initialization
-
   for tile in this.tiles:
     if tile.kind in {TYPE_RESPAWN}:
-      result = tile
-      break
+      return tile
 
-proc getOffsetArrow(this: TGameDispatcher, direction: uint32, arrow: TTile): int = 
-  result = -1
+  return TTile(coords: (0, 0))
 
+
+proc getOffsetArrow(this: TGameDispatcher, direction: uint32, arrow: TTile): TCattyCoords = 
+  result = (-1, -1)
 
   while true:
     case direction
     of DIRECTION_LEFT:
-      if arrow.kind notin {TYPE_ALEFT, TYPE_AHORIZONTAL, TYPE_AALL}:
-        result = arrow.x
+      if arrow.kind notin ARROWS_HORIZONTAL_SET - {TYPE_ARIGHT}:
+        result = arrow.coords
         break
 
-      if result == -1:
+      if result == (-1, -1):
         result = arrow.x - SCALE
 
-      if this.gameField.getTile("getOffsetArrow", result, arrow.y).kind notin {TYPE_NIL}:
+      if this.gameField.getTile(result, arrow.y).kind notin {TYPE_NIL}:
         result += SCALE
         break
       else:
@@ -89,7 +104,7 @@ proc getOffsetArrow(this: TGameDispatcher, direction: uint32, arrow: TTile): int
       if result == -1:
         result = arrow.x + SCALE
 
-      if this.gameField.getTile("getOffsetArrow", result, arrow.y).kind notin {TYPE_NIL}:
+      if this.gameField.getTile(result, arrow.y).kind notin {TYPE_NIL}:
         result -= SCALE
         break
       else:
@@ -103,7 +118,7 @@ proc getOffsetArrow(this: TGameDispatcher, direction: uint32, arrow: TTile): int
       if result == -1:
         result = arrow.y - SCALE
 
-      if this.gameField.getTile("getOffsetArrow", arrow.x, result).kind notin {TYPE_NIL}:
+      if this.gameField.getTile(arrow.x, result).kind notin {TYPE_NIL}:
         result += SCALE
         break
       else:
@@ -117,7 +132,7 @@ proc getOffsetArrow(this: TGameDispatcher, direction: uint32, arrow: TTile): int
       if result == -1:
         result = arrow.y + SCALE
 
-      if this.gameField.getTile("getOffsetArrow", arrow.x, result).kind notin {TYPE_NIL}:
+      if this.gameField.getTile(arrow.x, result).kind notin {TYPE_NIL}:
         result -= SCALE
         break
       else:
@@ -128,14 +143,14 @@ proc getOffsetArrow(this: TGameDispatcher, direction: uint32, arrow: TTile): int
 
 proc isCollision(this: TGameDispatcher, gameObjectType: uint32 = TYPE_PROTAGONIST, x, y: int = 0): bool = 
   if gameObjectType in {TYPE_PROTAGONIST}:
-    result = this.gameField.getTile("isCollision", x, y).kind in {TYPE_NIL, TYPE_TILE_WALL}
+    result = this.gameField.getTile(x, y).kind in {TYPE_NIL, TYPE_TILE_WALL}
 
 
 proc onKeyDownProtagonist(this: TGameDispatcher, key: sdl.TKey) =
   var 
     self = this.protagonist
     offset = 0
-    stepTile = this.gameField.getTile("onKeyDownProtagonist", self.x, self.y)
+    stepTile = this.gameField.getTile(self.x, self.y)
 
 
   proc protagonistMove(direction: uint32, offset: int, isAnim: bool = false) = 
@@ -271,7 +286,6 @@ proc onKeyDownArrowTile(this: TGameDispatcher, key: sdl.TKey) =
         self.offsetStop = offset
         self.dy = SCALE div ANIM_OFFSET_SIGHTING
 
-
 proc onKeyDownSighting(this: TGameDispatcher, key: sdl.TKey) =
   var 
     self = this.sighting
@@ -318,7 +332,6 @@ proc onKeyDownSighting(this: TGameDispatcher, key: sdl.TKey) =
 
     else: discard
 
-
 proc initialization*(this: TGameDispatcher): TGameDispatcher {.discardable.} = 
   this.active = ACTIVE_PROTAGONIST
   this.protagonist.x = this.gameField.getRespawnPoint.x
@@ -329,13 +342,12 @@ proc initialization*(this: TGameDispatcher): TGameDispatcher {.discardable.} =
 proc onKeyDown*(this: TGameDispatcher, key: sdl.TKey) =
   if not this.protagonist.isMoving and not this.sighting.isMoving:
     if key == K_SPACE:
-      if this.active in {ACTIVE_PROTAGONIST, ACTIVE_TILE}:
-        this.active = ACTIVE_SIGHTING
-        this.sighting.isDraw = true
-        this.sighting.x = this.protagonist.x
-        this.sighting.y = this.protagonist.y
+      var tile = this.gameField.getTile(this.sighting.x, this.sighting.y)
 
-      elif this.active in {ACTIVE_SIGHTING} and this.gameField.getTile("sighting", this.sighting.x, this.sighting.y).kind in {TYPE_ALEFT, TYPE_ARIGHT, TYPE_ATOP, TYPE_ABOTTOM, TYPE_AHORIZONTAL, TYPE_AVERTICAL, TYPE_AALL}:
+      if this.active in {ACTIVE_PROTAGONIST, ACTIVE_TILE}:
+        this.activate(ACTIVE_SIGHTING)
+
+      elif this.active in {ACTIVE_SIGHTING} and tile.kind in ARROWS_SET:
 
         if this.protagonist.x == this.sighting.x and this.protagonist.y == this.sighting.y:
           this.active = ACTIVE_PROTAGONIST
@@ -343,14 +355,14 @@ proc onKeyDown*(this: TGameDispatcher, key: sdl.TKey) =
 
         elif this.tile == nil:
           this.active = ACTIVE_TILE
-          this.gameField.getTile("sighting", this.sighting.x, this.sighting.y).isActive = true
+          tile.isActive = true
           this.sighting.isDraw = false
 
         elif this.tile != nil:
           this.tile.isActive = false
 
           this.active = ACTIVE_TILE
-          this.gameField.getTile("sighting", this.sighting.x, this.sighting.y).isActive = true
+          tile.isActive = true
           this.sighting.isDraw = false
 
       else:
@@ -362,4 +374,29 @@ proc onKeyDown*(this: TGameDispatcher, key: sdl.TKey) =
   of ACTIVE_PROTAGONIST: this.onKeyDownProtagonist(key)
   of ACTIVE_SIGHTING: this.onKeyDownSighting(key)
   of ACTIVE_TILE: this.onKeyDownArrowTile(key)
+  else: discard
+
+proc onUserEvent*(this: TGameDispatcher, event: TUserEvent) = 
+  case event.code
+  of EVENT_PROTAGONIST_END_MOVE:
+
+    var 
+      data = cast[TEndMoveEvent](event.data1)
+      tile = this.gameField.getTile(data.x, data.y)
+
+
+    case tile.kind
+
+    of TYPE_ALEFT, TYPE_ARIGHT, TYPE_ABOTTOM, TYPE_ATOP, TYPE_AVERTICAL, TYPE_AHORIZONTAL, TYPE_AALL: 
+      if this.tile == nil:
+        this.active = ACTIVE_TILE
+        tile.isActive = true
+
+    else: discard
+
+  of EVENT_SIGHTING_END_MOVE: discard
+
+
+  of EVENT_TILE_ARROW_END_MOVE: discard
+
   else: discard
