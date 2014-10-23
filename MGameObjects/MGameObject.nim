@@ -57,21 +57,23 @@ const
 type
   TTile* = ref object of TCattyGameObject
     direction*: uint32
-    offsetStop*: int
+    offsetStop*: TCattyCoords
     isMoving*, isActive*: bool
 
+  TTileList* = seq[TTile]
+
   TGameField* = ref object of TCattyGameObject
-    tiles*: seq[TTile]
+    tiles*: TTileList
     map*: int
 
   TProtagonist* = ref object of TCattyGameObject
     direction*, stepArrowType*: uint32
-    offsetStop*: int
+    offsetStop*: TCattyCoords
     isMoving*, isActive*, isStepArrow*: bool
 
   TSighting* = ref object of TCattyGameObject
     direction*: uint32
-    offsetStop*: int
+    offsetStop*: TCattyCoords
     isActive*, isMoving*: bool
 
   TEndMoveEvent* = ref object

@@ -17,50 +17,49 @@ proc initialization*(this: TSighting): TSighting {.discardable.} =
 
   this.kind = TYPE_SIGHTING
 
-  this.x = SCALE * 14
-  this.y = SCALE * 2
-  this.w = SCALE
-  this.h = SCALE
+  this.coords = (0, 0)
+  this.size = (SCALE, SCALE)
+
   this.direction = DIRECTION_BOTTOM
   this.texture = application.getTexture("sighting")
   this.sleep = 80
 
   return this
 
+proc endUpdate(this: TSighting) =
+  this.coords = this.offsetStop
+  this.isMoving = false
+
 proc update*(this: TSighting) =
   if this.isMoving:
     case this.direction:
     of DIRECTION_TOP: 
 
-      if this.y - this.dy > this.offsetStop:
-        this.y -= this.dy
+      if this.coords - this.delta > this.offsetStop:
+        this.coords -= this.delta
       else:
-        this.y = this.offsetStop
-        this.isMoving = false
+        this.endUpdate
 
     of DIRECTION_BOTTOM: 
 
-      if this.y + this.dy < this.offsetStop:
-        this.y += this.dy
+      if this.coords + this.delta < this.offsetStop:
+        this.coords += this.delta
       else:
-        this.y = this.offsetStop
-        this.isMoving = false
+        this.endUpdate
 
     of DIRECTION_LEFT: 
 
-      if this.x - this.dx > this.offsetStop:
-        this.x -= this.dx
+      if this.coords - this.delta > this.offsetStop:
+        this.coords -= this.delta
       else:
-        this.x = this.offsetStop
-        this.isMoving = false
+        this.endUpdate
 
     of DIRECTION_RIGHT: 
 
-      if this.x + this.dx < this.offsetStop:
-        this.x += this.dx
+      if this.coords + this.delta < this.offsetStop:
+        this.coords += this.delta
       else:
-        this.x = this.offsetStop
-        this.isMoving = false
+        this.endUpdate
 
     else: discard
 
