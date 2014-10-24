@@ -9,14 +9,16 @@ import
   MGameObjects.MProtagonist,
   MGameObjects.MSighting,
   MGameLogic.MCast,
-  MGameLogic.MGlobal,
-  MGameLogic.MDispatcher
+  MGameLogic.MDispatcher,
+  MGameLogic.MGlobal
 
 application.initialization()
 
 var 
   event: sdl.TEvent
-  dispatcher: TGameDispatcher
+  userEvent: sdl.TUserEvent
+
+  dispatcher: TGameDispatcher 
 
 gameObjects.add(@[
   TGameField().initialization.toCattyGameObject,
@@ -43,9 +45,15 @@ block gameLoopBlock:
           dispatcher.onKeyUp(evKeyboard(addr event).keysym.sym)
 
         of sdl.USEREVENT:
+          userEvent = cast[sdl.TUserEvent](event)
 
-          dispatcher.onUserEvent(cast[sdl.TUserEvent](event))
-          # echo cast[sdl.TUserEvent](event).code, " ", cast[TEndMoveEvent](cast[sdl.TUserEvent](event).data1)
+          dispatcher.onUserEvent(userEvent)
+
+          for gameObject in gameObjects:
+            case gameObject.kind
+            of TYPE_PROTAGONIST: gameObject.asProtagonist.onUserEvent(userEvent)
+            of TYPE_GAMEFIELD: gameObject.asGameField.onUserEvent(userEvent)
+            else: discard
 
         else: discard
 
@@ -53,9 +61,9 @@ block gameLoopBlock:
 
       for gameObject in gameObjects:
         case gameObject.kind
-        of TYPE_GAMEFIELD: gameObject.asGameField.update()
-        of TYPE_PROTAGONIST: gameObject.asProtagonist.update()
-        of TYPE_SIGHTING: gameObject.asSighting.update()
+        of TYPE_GAMEFIELD: gameObject.asGameField.update
+        of TYPE_PROTAGONIST: gameObject.asProtagonist.update
+        of TYPE_SIGHTING: gameObject.asSighting.update
         else: discard
 
     block gameDraw:
@@ -64,9 +72,9 @@ block gameLoopBlock:
 
       for gameObject in gameObjects:
         case gameObject.kind
-        of TYPE_GAMEFIELD: gameObject.asGameField.draw()
-        of TYPE_PROTAGONIST: gameObject.asProtagonist.draw()
-        of TYPE_SIGHTING: gameObject.asSighting.draw()
+        of TYPE_GAMEFIELD: gameObject.asGameField.draw
+        of TYPE_PROTAGONIST: gameObject.asProtagonist.draw
+        of TYPE_SIGHTING: gameObject.asSighting.draw
         else: discard
 
       glFlush()
@@ -75,6 +83,6 @@ block gameLoopBlock:
     if application.isQuit == true:
       break gameLoopBlock
 
-    sdl.delay(40)
+    sdl.delay(30)
 
 application.quit()

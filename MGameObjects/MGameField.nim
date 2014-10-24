@@ -17,17 +17,11 @@ proc `[]`*(this: TTileList, x, y: int): TTile =
 
 proc `[]`*(this: TTileList, coords: TCattyCoords): TTile = this[coords.x, coords.y]
 
-proc `<>`*(this: TTileList, x, y: int): TTile =
-  for tile in this:
-    if tile.coords == (x, y) and tile.kind > 0:
+
+proc respawnTile*(this: TGameField): TTile = 
+  for tile in this.tiles:
+    if tile.kind in {TYPE_RESPAWN}:
       return tile
-
-  return TTile(coords: (x, y))
-
-proc `<>`*(this: TTileList, coords: TCattyCoords): TTile = this[coords.x, coords.y]
-
-
-
 
 
 proc loadMap*(this: TGameField, id: int) = 
@@ -39,8 +33,8 @@ proc loadMap*(this: TGameField, id: int) =
 
   this.tiles = @[]
 
-  for i in countup(0, 10):
-    for j in countup(0, 19):
+  for i in countup(0, M - 1):
+    for j in countup(0, N - 1):
       let 
         symbol = file["maps"][currentMap][i][j].str
         x = j * SCALE
@@ -88,7 +82,6 @@ proc loadMap*(this: TGameField, id: int) =
         TTile(coords: (x, y), size: (w, h)).initialization
       )
 
-
 proc initialization*(this: TGameField): TGameField {.discardable.} = 
   cast[TCattyGameObject](this).initialization()
 
@@ -116,5 +109,16 @@ proc update*(this: TGameField) =
   for tile in this.tiles:
     tile.update
 
-proc onKeyDown*(this: TGameField, key: sdl.TKey) = discard
-proc onKeyUp*(this: TGameField, key: sdl.TKey) = discard
+proc onMoveArrow(this: TGameField, event: TEventStartMove) = 
+  var movingTile = this.tiles[event.coords]
+
+  movingTile.offsetStop = event.offsetStop
+  movingTile.delta = event.delta
+  movingTile.isMoving = true
+  movingTile.direction = computeDirection(event.coords, event.offsetStop)
+
+
+proc onUserEvent*(this: TGameField, event: sdl.TUserEvent) = 
+  case event.code
+  of EVENT_TILE_ARROW_START_MOVE: this.onMoveArrow(cast[TEventStartMove](event.data1))
+  else: discard

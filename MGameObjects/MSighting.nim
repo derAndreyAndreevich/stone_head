@@ -6,9 +6,18 @@ import
   MGameLogic.MGlobal
 
 
-proc show*(this: TSighting) = this.isDraw = true
-proc hide*(this: TSighting) = this.isDraw = false
-proc toggleDraw*(this: TSighting) = this.isDraw = not this.isDraw
+proc eventEndMove(this: TSighting) = 
+  this.stopAnim
+  this.coords = this.offsetStop
+  this.isMoving = false
+
+  var
+    data = cast[ptr TEventEndMove](TEventEndMove(x: this.coords.x, y: this.coords.y))
+    event = sdl.TUserEvent(
+      kind: sdl.USEREVENT, code: EVENT_SIGHTING_END_MOVE, data1: data
+    )
+
+  discard sdl.pushEvent(cast[sdl.PEvent](addr event))
 
 proc initialization*(this: TSighting): TSighting {.discardable.} = 
 
@@ -32,35 +41,15 @@ proc endUpdate(this: TSighting) =
 
 proc update*(this: TSighting) =
   if this.isMoving:
-    case this.direction:
-    of DIRECTION_TOP: 
+    this.coords += this.delta
 
-      if this.coords - this.delta > this.offsetStop:
-        this.coords -= this.delta
-      else:
-        this.endUpdate
-
-    of DIRECTION_BOTTOM: 
-
+    case this.direction
+    of DIRECTION_TOP, DIRECTION_LEFT:
+      if this.coords + this.delta > this.offsetStop:
+        this.eventEndMove
+    of DIRECTION_BOTTOM, DIRECTION_RIGHT:
       if this.coords + this.delta < this.offsetStop:
-        this.coords += this.delta
-      else:
-        this.endUpdate
-
-    of DIRECTION_LEFT: 
-
-      if this.coords - this.delta > this.offsetStop:
-        this.coords -= this.delta
-      else:
-        this.endUpdate
-
-    of DIRECTION_RIGHT: 
-
-      if this.coords + this.delta < this.offsetStop:
-        this.coords += this.delta
-      else:
-        this.endUpdate
-
+        this.eventEndMove
     else: discard
 
 proc draw*(this: TSighting) =

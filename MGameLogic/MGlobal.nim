@@ -1,8 +1,6 @@
-# import catty.mcore.mapplication
-import opengl
-import catty.core, catty.gameobjects as MCattyGameObjects
-
 import 
+  opengl,
+  catty.core, catty.gameobjects as MCattyGameObjects,
   MGameObjects.MGameObject
 
 const

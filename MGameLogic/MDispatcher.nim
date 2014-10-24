@@ -1,12 +1,12 @@
 import sdl
 import catty.core, catty.gameobjects as MCattyGameObjects
 import 
+  MGlobal as global,
   MGameObjects.MGameObject,
   MGameObjects.MGameField,
-  MGameObjects.MProtagonist,
   MGameObjects.MTiles,
-  MCast,
-  MGlobal as global
+  MGameObjects.MProtagonist,
+  MGameLogic.MCast
 
 const
   ACTIVE_PROTAGONIST = 1
@@ -14,7 +14,7 @@ const
   ACTIVE_SIGHTING = 3
 
   ANIM_OFFSET_PROTAGONIST = 8
-  ANIM_OFFSET_SIGHTING = 2
+  ANIM_OFFSET_SIGHTING = 4
 
   AALL_SET = {TYPE_ALEFT, TYPE_ARIGHT, TYPE_ATOP, TYPE_ABOTTOM, TYPE_AHORIZONTAL, TYPE_AVERTICAL, TYPE_AVERTICAL}
   AHORIZONTAL_SET = {TYPE_ALEFT, TYPE_ARIGHT, TYPE_AHORIZONTAL, TYPE_AALL}
@@ -25,407 +25,242 @@ const
   ABOTTOM_SET = {TYPE_ABOTTOM, TYPE_AVERTICAL, TYPE_AALL}
 
   CPROTAGONIST_SET = {TYPE_NIL, TYPE_TILE_WALL}
+  CARROW_SET = AALL_SET + {TYPE_TILE_WALL, TYPE_TILE}
 
 
 type
   TGameDispatcher* = ref object of TCattyGameObject
     active*: uint32
 
-
 proc protagonist(this: TGameDispatcher): TProtagonist = 
-  for gameObject in global.gameObjects:
-    case gameObject.kind
-    of TYPE_PROTAGONIST: return gameObject.asProtagonist
-    else: discard
+  for g in gameObjects: 
+    if g.kind in {TYPE_PROTAGONIST}:
+      return g.asProtagonist
 
+proc gameField(this: TGameDispatcher): TGameField = 
+  for g in gameObjects:
+    if g.kind in {TYPE_GAMEFIELD}:
+      return g.asGameField
 
-proc gameField(this: TGameDispatcher): TGameField =
-  for go in global.gameObjects:
-    case go.kind
-    of TYPE_GAMEFIELD: return go.asGameField
-    else: discard
-
-
-proc tile(this: TGameDispatcher): TTile = 
+proc tile(this: TGameDispatcher): TTile =
   for tile in this.gameField.tiles:
     if tile.kind in AALL_SET and tile.isActive:
-       return tile
-
-
-proc sighting(this: TGameDispatcher): TSighting =
-  for go in global.gameObjects:
-    case go.kind
-    of TYPE_SIGHTING: return go.asSighting
-    else: discard
-
-proc activate(this: TGameDispatcher, activateType: uint32 = ACTIVE_PROTAGONIST, x, y: int = 0) = 
-  case activateType
-  of ACTIVE_PROTAGONIST:
-    this.sighting.hide
-
-  of ACTIVE_SIGHTING:
-    this.sighting.show
-    this.sighting.coords = if this.active in {ACTIVE_PROTAGONIST}: this.protagonist.coords else: this.tile.coords
-
-  of ACTIVE_TILE:
-    this.sighting.hide
-    this.tile.isActive = false
-    this.gameField.tiles[x, y].isActive = true
-
-  else: discard
-
-  this.active = activateType
-
-proc getRespawnPoint(this: TGameField): TTile = 
-  for tile in this.tiles:
-    if tile.kind in {TYPE_RESPAWN}:
       return tile
 
-  return TTile(coords: (0, 0))
-
-
 proc getOffsetArrow(this: TGameDispatcher, direction: uint32, arrow: TTile): TCattyCoords = 
-  result = (-1, -1)
+  result = arrow.coords
 
   while true:
     case direction
     of DIRECTION_LEFT:
-      if arrow.kind notin ALEFT_SET:
-        result = arrow.coords
-        break
+      if arrow.kind notin ALEFT_SET: break
 
-      if result == (-1, -1):
+      if result == arrow.coords:
+        if arrow.isCollision(this.gameField.tiles[arrow.coords.x - SCALE, arrow.coords.y]): break
         result = (arrow.coords.x - SCALE, arrow.coords.y)
-
-      if this.gameField.tiles[result].kind notin {TYPE_NIL}:
-        result += (SCALE, 0)
-        break
       else:
+        if arrow.isCollision(this.gameField.tiles[result - (SCALE, 0)]): break
         result -= (SCALE, 0)
 
     of DIRECTION_RIGHT:
-      if arrow.kind notin ARIGHT_SET:
-        result = arrow.coords
-        break
+      if arrow.kind notin ARIGHT_SET: break
 
-      if result == (-1, -1):
+      if result == arrow.coords:
+        if arrow.isCollision(this.gameField.tiles[arrow.coords.x + SCALE, arrow.coords.y]): break
         result = (arrow.coords.x + SCALE, arrow.coords.y)
-
-      if this.gameField.tiles[result].kind notin {TYPE_NIL}:
-        result -= (SCALE, 0)
-        break
       else:
+        if arrow.isCollision(this.gameField.tiles[result + (SCALE, 0)]): break
         result += (SCALE, 0)
 
     of DIRECTION_TOP:
-      if arrow.kind notin ATOP_SET:
-        result = arrow.coords
-        break
+      if arrow.kind notin ATOP_SET: break
 
-      if result == (-1, -1):
+      if result == arrow.coords:
+        if arrow.isCollision(this.gameField.tiles[0, arrow.coords.y - SCALE]): break
         result = (0, arrow.coords.y - SCALE)
-
-      if this.gameField.tiles[result].kind notin {TYPE_NIL}:
-        result += (0, SCALE)
-        break
       else:
+        if arrow.isCollision(this.gameField.tiles[result - (0, SCALE)]): break
         result -= (0, SCALE)
 
     of DIRECTION_BOTTOM:
-      if arrow.kind notin ABOTTOM_SET:
-        result = arrow.coords
-        break
+      if arrow.kind notin ABOTTOM_SET: break
 
-      if result == (-1, -1):
+      if result == arrow.coords:
+        if arrow.isCollision(this.gameField.tiles[0, arrow.coords.y + SCALE]): break
         result = (0, arrow.coords.y + SCALE)
-
-      if this.gameField.tiles[result].kind notin {TYPE_NIL}:
-        result -= (0, SCALE)
-        break
       else:
+        if arrow.isCollision(this.gameField.tiles[result + (0, SCALE)]): break
         result += (0, SCALE)
 
     else: discard
 
-
-
-
+proc newEventStartMove(this: TGameDispatcher, direction: uint32, coords, offsetStop, delta: TCattyCoords): sdl.TUserEvent =
+  return sdl.TUserEvent(kind: sdl.USEREVENT, code: EVENT_PROTAGONIST_START_MOVE, data1: cast[ptr TEventStartMove](TEventStartMove(
+    direction: direction,
+    coords: coords,
+    offsetStop: offsetStop,
+    delta: delta
+  )))
 
 proc onKeyDownProtagonist(this: TGameDispatcher, key: sdl.TKey) =
   var 
-    self = this.protagonist
-    offset, offsetArrow = (0, 0)
-    stepTile = this.gameField.tiles[self.coords]
+    isCollision: bool
 
-  proc protagonistIsCollision(coords: TCattyCoords): bool = this.gameField.tiles[coords].kind in CPROTAGONIST_SET
+  if key in {K_UP, K_W}:
+    isCollision = this.protagonist.isCollision(this.gameField.tiles[this.protagonist.coords - (0, SCALE)])
 
-  proc protagonistMove(offset: TCattyCoords, isAnim: bool = false): TCattyCoords {.discardable.} = 
-    if offset.x > self.coords.x:
-      self.direction = DIRECTION_RIGHT
-      if isAnim: 
-        self.playAnim ANIM_PROTAGONIST_RIGHT
-        self.delta = (SCALE div ANIM_OFFSET_PROTAGONIST, 0)
-      else:
-        self.delta = (SCALE div ANIM_OFFSET_SIGHTING, 0)
+    if this.protagonist.isStepArrow and isCollision and this.tile.kind in ATOP_SET:
+      var 
+        eventProtagonist, eventArrow = newEventStartMove(
+          DIRECTION_TOP, 
+          this.protagonist.coords,
+          this.getOffsetArrow(DIRECTION_TOP, this.gameField.tiles[this.protagonist.coords]),
+          (0, -1 * SCALE div ANIM_OFFSET_SIGHTING)
+        )
 
-    elif offset.x < self.coords.x:
-      self.direction = DIRECTION_LEFT
-      if isAnim: 
-        self.playAnim ANIM_PROTAGONIST_LEFT
-        self.delta = (-1 * (SCALE div ANIM_OFFSET_PROTAGONIST), 0)
-      else:
-        self.delta = (-1 * (SCALE div ANIM_OFFSET_SIGHTING), 0)
+      discard sdl.pushEvent(cast[sdl.PEvent](addr eventProtagonist))
+      discard sdl.pushEvent(cast[sdl.PEvent](addr eventArrow))
+ 
+    elif not isCollision:
+      this.protagonist.isStepArrow = false
 
-    elif offset.y > self.coords.y: 
-      self.direction = DIRECTION_BOTTOM
-      if isAnim: 
-        self.playAnim ANIM_PROTAGONIST_BOTTOM
-        self.delta = (0, SCALE div ANIM_OFFSET_PROTAGONIST)
-      else:
-        self.delta = (0, SCALE div ANIM_OFFSET_SIGHTING)
+      var 
+        event = newEventStartMove(
+          DIRECTION_TOP,
+          this.protagonist.coords,
+          this.protagonist.coords - (0, SCALE),
+          (0, -1 * SCALE div ANIM_OFFSET_PROTAGONIST)
+        )
 
-    elif: 
-      self.direction = DIRECTION_TOP
-      if isAnim: 
-        self.playAnim ANIM_PROTAGONIST_TOP
-        self.delta = (0, -1 * (SCALE div ANIM_OFFSET_PROTAGONIST))
-      else:
-        self.delta = (0, -1 * (SCALE div ANIM_OFFSET_SIGHTING))
+      discard sdl.pushEvent(cast[sdl.PEvent](addr event))
 
+  elif key in {K_DOWN, K_S}:
+    isCollision = this.protagonist.isCollision(this.gameField.tiles[this.protagonist.coords + (0, SCALE)])
 
-    self.isMoving = true
-    self.offsetStop = offset
+    if this.protagonist.isStepArrow and isCollision and this.tile.kind in ABOTTOM_SET:
+      var 
+        eventProtagonist, eventArrow = sdl.TUserEvent(kind: sdl.USEREVENT, code: EVENT_PROTAGONIST_START_MOVE, data1: cast[ptr TEventStartMove](TEventStartMove(
+          coords: this.protagonist.coords, 
+          offsetStop: this.getOffsetArrow(DIRECTION_BOTTOM, this.gameField.tiles[this.protagonist.coords]), 
+          delta: (0, SCALE div ANIM_OFFSET_SIGHTING),
+          direction: DIRECTION_BOTTOM
+        )))
 
-    return direction
+        eventArrow = sdl.TUserEvent(kind: sdl.USEREVENT, code: EVENT_TILE_ARROW_START_MOVE, data1: cast[ptr TEventStartMove](TEventStartMove(
+          coords: this.protagonist.coords,
+          offsetStop: this.getOffsetArrow(DIRECTION_BOTTOM, this.gameField.tiles[this.protagonist.coords]), 
+          delta: (0, SCALE div ANIM_OFFSET_SIGHTING),
+          direction: DIRECTION_BOTTOM
+        )))
 
-  proc arrowMove(direction: uint32, offset: TCattyCoords): uint32 {.discardable.} = 
-    stepTile.isMoving = true
-    stepTile.direction = direction
-    stepTile.offsetStop = offset
-    # stepTile.dx = SCALE div ANIM_OFFSET_SIGHTING
-    # stepTile.dy = SCALE div ANIM_OFFSET_SIGHTING
+      discard sdl.pushEvent(cast[sdl.PEvent](addr eventProtagonist))
+      discard sdl.pushEvent(cast[sdl.PEvent](addr eventArrow))
+    elif not isCollision:
+      this.protagonist.isStepArrow = false
 
-    return direction
+      var
+        event = sdl.TUserEvent(kind: sdl.USEREVENT, code: EVENT_PROTAGONIST_START_MOVE, data1: cast[ptr TEventStartMove](TEventStartMove(
+          coords: this.protagonist.coords, 
+          offsetStop: (this.protagonist.coords.x, this.protagonist.coords.y + SCALE), 
+          delta: (0, SCALE div ANIM_OFFSET_PROTAGONIST),
+          direction: DIRECTION_BOTTOM
+        )))
 
+      discard sdl.pushEvent(cast[sdl.PEvent](addr event))
 
-  if not self.isMoving:
+  elif key in {K_LEFT, K_A}:
+    if this.protagonist.isStepArrow and this.protagonist.isCollision(this.gameField.tiles[this.protagonist.coords - (SCALE, 0)]) and this.tile.kind in ALEFT_SET:
+      var 
+        eventProtagonist = sdl.TUserEvent(kind: sdl.USEREVENT, code: EVENT_PROTAGONIST_START_MOVE, data1: cast[ptr TEventStartMove](TEventStartMove(
+          coords: this.protagonist.coords, 
+          offsetStop: this.getOffsetArrow(DIRECTION_LEFT, this.gameField.tiles[this.protagonist.coords]), 
+          delta: (0, -1 * SCALE div ANIM_OFFSET_SIGHTING),
+          direction: DIRECTION_LEFT
+        )))
 
-    case key
-    of K_UP, K_W:
-      offset = (self.coords.x, self.coords.y - SCALE)
+        eventArrow = sdl.TUserEvent(kind: sdl.USEREVENT, code: EVENT_TILE_ARROW_START_MOVE, data1: cast[ptr TEventStartMove](TEventStartMove(
+          coords: this.protagonist.coords,
+          offsetStop: this.getOffsetArrow(DIRECTION_LEFT, this.gameField.tiles[this.protagonist.coords]), 
+          delta: (0, -1 * SCALE div ANIM_OFFSET_SIGHTING),
+          direction: DIRECTION_LEFT
+        )))
 
-      let isntCollision = 
-        self.coords.y > 0 and not this.protagonistIsCollision(offset)
+      discard sdl.pushEvent(cast[sdl.PEvent](addr eventProtagonist))
+      discard sdl.pushEvent(cast[sdl.PEvent](addr eventArrow))
+    elif not this.protagonist.isCollision(this.gameField.tiles[this.protagonist.coords - (SCALE, 0)]):
+      this.protagonist.isStepArrow = false
 
-      if stepTile.kind in ATOP_SET:
+      var
+        event = sdl.TUserEvent(kind: sdl.USEREVENT, code: EVENT_PROTAGONIST_START_MOVE, data1: cast[ptr TEventStartMove](TEventStartMove(
+          coords: this.protagonist.coords, 
+          offsetStop: (this.protagonist.coords.x - SCALE, this.protagonist.coords.y), 
+          delta: (-1 * SCALE div ANIM_OFFSET_PROTAGONIST, 0),
+          direction: DIRECTION_LEFT
+        )))
 
-        offsetArrow = DIRECTION_TOP.getOffsetArrow(stepTile)
-        DIRECTION_TOP.protagonistMove(offsetArrow).arrowMove(offsetArrow)
+      discard sdl.pushEvent(cast[sdl.PEvent](addr event))
 
-        if isntCollision: DIRECTION_TOP.protagonistMove(offset, true)
+  elif key in {K_RIGHT, K_D}:
+    if this.protagonist.isStepArrow and this.protagonist.isCollision(this.gameField.tiles[this.protagonist.coords + (SCALE, 0)]) and this.tile.kind in ARIGHT_SET:
+      discard
+    elif not this.protagonist.isCollision(this.gameField.tiles[this.protagonist.coords + (SCALE, 0)]):
+      this.protagonist.isStepArrow = false
 
-      elif isntCollision: DIRECTION_TOP.protagonistMove(offset, true)
+      var
+        event = sdl.TUserEvent(kind: sdl.USEREVENT, code: EVENT_PROTAGONIST_START_MOVE, data1: cast[ptr TEventStartMove](TEventStartMove(
+          coords: this.protagonist.coords, 
+          offsetStop: (this.protagonist.coords.x + SCALE, this.protagonist.coords.y), 
+          delta: (SCALE div ANIM_OFFSET_PROTAGONIST, 0),
+          direction: DIRECTION_RIGHT
+        )))
 
-    of K_DOWN, K_S:
-      offset = (self.coords.x, self.coords.y + SCALE)
+      discard sdl.pushEvent(cast[sdl.PEvent](addr event))
 
-      let isntCollision = 
-        self.coords.y < SCREEN_HEIGHT - SCALE and not this.protagonistIsCollision(offset)
+  else: discard
 
-      if stepTile.kind in ABOTTOM_SET:
-        protagonistMove(DIRECTION_BOTTOM, this.getOffsetArrow(DIRECTION_BOTTOM, stepTile))
-        arrowMove(DIRECTION_BOTTOM, this.getOffsetArrow(DIRECTION_BOTTOM, stepTile))
+proc onKeyDownArrowTile(this: TGameDispatcher, key: sdl.TKey) = discard
 
-        if isntCollision: protagonistMove(DIRECTION_BOTTOM, offset, true)
+proc onKeyDownSighting(this: TGameDispatcher, key: sdl.TKey) = discard
 
-      elif isntCollision: protagonistMove(DIRECTION_BOTTOM, offset, true)
-
-    of K_LEFT, K_A:
-      offset = (self.coords.x - SCALE, self.coords.y)
-
-      let isntCollision = 
-        self.coords.x > 0 and not this.protagonistIsCollision(offset)
-
-      if stepTile.kind in ALEFT_SET:
-
-        protagonistMove(DIRECTION_LEFT, this.getOffsetArrow(DIRECTION_LEFT, stepTile))
-        arrowMove(DIRECTION_LEFT, this.getOffsetArrow(DIRECTION_LEFT, stepTile))
-
-        if isntCollision: protagonistMove(DIRECTION_LEFT, offset, true)
-
-      elif isntCollision: protagonistMove(DIRECTION_LEFT, offset, true)
-
-    of K_RIGHT, K_D:
-      offset = (self.coords.x + SCALE, self.coords.y)
-
-      let isntCollision = 
-        self.coords.x < SCREEN_WIDTH - SCALE and not this.protagonistIsCollision(offset)
-
-
-      if stepTile.kind in ARIGHT_SET:
-
-        protagonistMove(DIRECTION_RIGHT, this.getOffsetArrow(DIRECTION_RIGHT, stepTile))
-        arrowMove(DIRECTION_RIGHT, this.getOffsetArrow(DIRECTION_RIGHT, stepTile))
-
-        if isntCollision: protagonistMove(DIRECTION_RIGHT, offset, true)
-
-      elif isntCollision: protagonistMove(DIRECTION_RIGHT, offset, true)
-
-    else: discard
-
-    self.texture = application.getTexture("protagonist-" + self.direction + "-0")
-
-
-proc onKeyDownArrowTile(this: TGameDispatcher, key: sdl.TKey) = 
-  var
-    self = this.tile
-    offset = 0
-
-
-  if not self.isMoving:
-    if key in {K_LEFT, K_A} and self.kind in {TYPE_ALEFT, TYPE_AHORIZONTAL, TYPE_AALL}:
-      offset = this.getOffsetArrow(DIRECTION_LEFT, self)
-
-      if self.x > 0:
-        self.isMoving = true
-        self.direction = DIRECTION_LEFT
-        self.offsetStop = offset
-        self.dx = SCALE div ANIM_OFFSET_SIGHTING
-
-    elif key in {K_RIGHT, K_D} and self.kind in {TYPE_ARIGHT, TYPE_AHORIZONTAL, TYPE_AALL}:
-      offset = this.getOffsetArrow(DIRECTION_RIGHT, self)
-
-      if self.x < SCREEN_WIDTH - SCALE:
-        self.isMoving = true
-        self.direction = DIRECTION_RIGHT
-        self.offsetStop = offset
-        self.dx = SCALE div ANIM_OFFSET_SIGHTING
-
-    elif key in {K_UP, K_W} and self.kind in {TYPE_ATOP, TYPE_AVERTICAL, TYPE_AALL}:
-      offset = this.getOffsetArrow(DIRECTION_TOP, self)
-
-      if self.x < SCREEN_WIDTH - SCALE:
-        self.isMoving = true
-        self.direction = DIRECTION_TOP
-        self.offsetStop = offset
-        self.dy = SCALE div ANIM_OFFSET_SIGHTING
-
-    elif key in {K_DOWN, K_S} and self.kind in {TYPE_ABOTTOM, TYPE_AVERTICAL, TYPE_AALL}:
-      offset = this.getOffsetArrow(DIRECTION_BOTTOM, self)
-
-      if self.x < SCREEN_WIDTH - SCALE:
-        self.isMoving = true
-        self.direction = DIRECTION_BOTTOM
-        self.offsetStop = offset
-        self.dy = SCALE div ANIM_OFFSET_SIGHTING
-
-proc onKeyDownSighting(this: TGameDispatcher, key: sdl.TKey) =
-  var 
-    self = this.sighting
-    offset = 0
-
-  if not self.isMoving:
-
-    case key
-    of K_UP, K_W:
-      offset = self.y - SCALE
-
-      if self.y > 0:
-        self.isMoving = true
-        self.direction = DIRECTION_TOP
-        self.offsetStop = offset
-        self.dy = SCALE div ANIM_OFFSET_SIGHTING
-
-    of K_DOWN, K_S:
-      offset = self.y + SCALE
-
-      if self.y < SCREEN_HEIGHT - SCALE:
-        self.isMoving = true
-        self.direction = DIRECTION_BOTTOM
-        self.offsetStop = offset
-        self.dy = SCALE div ANIM_OFFSET_SIGHTING
-
-    of K_LEFT, K_A:
-      offset = self.x - SCALE
-
-      if self.x > 0:
-        self.isMoving = true
-        self.direction = DIRECTION_LEFT
-        self.offsetStop = offset
-        self.dx = SCALE div ANIM_OFFSET_SIGHTING
-
-    of K_RIGHT, K_D:  
-      offset = self.x + SCALE
-
-      if self.x < SCREEN_WIDTH - SCALE:
-        self.isMoving = true
-        self.direction = DIRECTION_RIGHT
-        self.offsetStop = offset
-        self.dx = SCALE div ANIM_OFFSET_SIGHTING
-
-    else: discard
 
 proc initialization*(this: TGameDispatcher): TGameDispatcher {.discardable.} = 
   this.active = ACTIVE_PROTAGONIST
-  this.protagonist.x = this.gameField.getRespawnPoint.x
-  this.protagonist.y = this.gameField.getRespawnPoint.y
+  this.protagonist.coords = this.gameField.respawnTile.coords
 
   return this
 
 proc onKeyDown*(this: TGameDispatcher, key: sdl.TKey) =
-  if not this.protagonist.isMoving and not this.sighting.isMoving:
-    if key == K_SPACE:
-      var tile = this.gameField.getTile(this.sighting.x, this.sighting.y)
-
-      if this.active in {ACTIVE_PROTAGONIST, ACTIVE_TILE}:
-        this.activate(ACTIVE_SIGHTING)
-
-      elif this.active in {ACTIVE_SIGHTING} and tile.kind in AALL_SET:
-
-        if this.protagonist.x == this.sighting.x and this.protagonist.y == this.sighting.y:
-          this.active = ACTIVE_PROTAGONIST
-          this.sighting.isDraw = false
-
-        elif this.tile == nil:
-          this.active = ACTIVE_TILE
-          tile.isActive = true
-          this.sighting.isDraw = false
-
-        elif this.tile != nil:
-          this.tile.isActive = false
-
-          this.active = ACTIVE_TILE
-          tile.isActive = true
-          this.sighting.isDraw = false
-
-      else:
-        this.active = ACTIVE_PROTAGONIST
-
-        this.sighting.isDraw = false
-
-  case this.active
+  
+  case this.active:
   of ACTIVE_PROTAGONIST: this.onKeyDownProtagonist(key)
-  of ACTIVE_SIGHTING: this.onKeyDownSighting(key)
-  of ACTIVE_TILE: this.onKeyDownArrowTile(key)
   else: discard
+
 
 proc onUserEvent*(this: TGameDispatcher, event: TUserEvent) = 
   case event.code
   of EVENT_PROTAGONIST_END_MOVE:
 
     var 
-      data = cast[TEndMoveEvent](event.data1)
-      tile = this.gameField.getTile(data.x, data.y)
+      data = cast[TEventEndMove](event.data1)
+      tile = this.gameField.tiles[data.x, data.y]
 
 
     case tile.kind
 
     of TYPE_ALEFT, TYPE_ARIGHT, TYPE_ABOTTOM, TYPE_ATOP, TYPE_AVERTICAL, TYPE_AHORIZONTAL, TYPE_AALL: 
+      this.protagonist.isStepArrow = true
+
       if this.tile == nil:
-        this.active = ACTIVE_TILE
+        tile.isActive = true
+      else:
+        this.tile.isActive = false
         tile.isActive = true
 
-    else: discard
+    else: 
+      this.protagonist.isStepArrow = false
+
+      if this.tile != nil:
+        this.tile.isActive = false
 
   of EVENT_SIGHTING_END_MOVE: discard
 

@@ -45,12 +45,18 @@ const
     "ANIM_PROTAGONIST_RIGHT"
   ]
 
-  EVENT_PROTAGONIST_END_MOVE* = 1
-  EVENT_SIGHTING_END_MOVE* = 2
-  EVENT_TILE_ARROW_END_MOVE* = 3
+  EVENT_PROTAGONIST_START_MOVE* = 1
+  EVENT_PROTAGONIST_END_MOVE* = 2
+
+  EVENT_SIGHTING_START_MOVE* = 3
+  EVENT_SIGHTING_END_MOVE* = 4
+
+  EVENT_TILE_ARROW_START_MOVE* = 5
+  EVENT_TILE_ARROW_END_MOVE* = 6
 
   EVENT_NAMES* = @[
-    "EVENT_PROTAGONIST_END_MOVE", "EVENT_SIGHTING_END_MOVE", "EVENT_TILE_ARROW_END_MOVE"
+    "EVENT_PROTAGONIST_END_MOVE", "EVENT_SIGHTING_END_MOVE", "EVENT_TILE_ARROW_END_MOVE",
+    "EVENT_PROTAGONIST_START_MOVE", "EVENT_SIGHTING_START_MOVE", "EVENT_TILE_ARROW_START_MOVE"
   ]
 
 
@@ -64,6 +70,7 @@ type
 
   TGameField* = ref object of TCattyGameObject
     tiles*: TTileList
+    movingTile*: TTile
     map*: int
 
   TProtagonist* = ref object of TCattyGameObject
@@ -76,9 +83,26 @@ type
     offsetStop*: TCattyCoords
     isActive*, isMoving*: bool
 
-  TEndMoveEvent* = ref object
+  TEventStartMove* = ref object
+    direction*: uint32
+    coords*, offsetStop*, delta*: TCattyCoords
+
+  TEventEndMove* = ref object
     x*, y*: int
+
+
+proc computeDirection*(start, stop: TCattyCoords): uint32 =
+  if start.x > stop.x:
+    return DIRECTION_LEFT
+  elif start.x < stop.x:
+    return DIRECTION_RIGHT
+  elif start.y > stop.y:
+    return DIRECTION_TOP
+  elif start.y < stop.y:
+    return DIRECTION_BOTTOM
 
 proc `$`*(this: TTile): string = "TTile(direction: $1, offsetStop: $2, isMoving: $3, isActive: $4)" % [DIRECTION_NAMES[cast[int](this.direction)], $this.offsetStop, $this.isMoving, $this.isActive]
 
-proc `$`*(this: TEndMoveEvent): string = "TEndMoveEvent(x: $1, y: $1)" % [$this.x, $this.y]
+proc `$`*(this: TEventEndMove): string = "TEventEndMove(x: $1, y: $2)" % [$this.x, $this.y]
+
+proc `$`*(this: TEventStartMove): string = "TEventStartMove(coords: $1, offsetStop: $2, delta: $3, isStepArrow: $4)" % [$this.coords, $this.offsetStop, $this.delta]

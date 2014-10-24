@@ -5,6 +5,11 @@ import
   MGameObject,
   MGameLogic.MGlobal
 
+const
+  COLLISION_SET = {TYPE_NIL, TYPE_TILE_WALL}
+
+proc isCollision*(this: TProtagonist, tile: TTile): bool = tile.kind in COLLISION_SET
+
 proc initialization*(this: TProtagonist): TProtagonist {.discardable.} = 
 
   cast[TCattyGameObject](this).initialization
@@ -60,57 +65,55 @@ proc initialization*(this: TProtagonist): TProtagonist {.discardable.} =
 
   return this
 
-proc event_endMoveProtagonist(this: TProtagonist) = 
+proc eventEndMove(this: TProtagonist) = 
+  this.stopAnim
+  this.coords = this.offsetStop
+  this.isMoving = false
+  this.isStepArrow = false
 
   var
-    data = cast[ptr TEndMoveEvent](TEndMoveEvent(x: this.coords.x, y: this.coords.y))
+    data = cast[ptr TEventEndMove](TEventEndMove(x: this.coords.x, y: this.coords.y))
     event = sdl.TUserEvent(
       kind: sdl.USEREVENT, code: EVENT_PROTAGONIST_END_MOVE, data1: data
     )
 
   discard sdl.pushEvent(cast[sdl.PEvent](addr event))
 
-proc endUpdate(this: TProtagonist) = 
-  this.stopAnim
-  this.coords = this.offsetStop
-  this.isMoving = false
-  this.event_endMoveProtagonist
-  
-
 proc update*(this: TProtagonist) =
   cast[TCattyGameObject](this).update
 
   if this.isMoving:
-    case this.direction:
-    of DIRECTION_TOP: 
 
-      if this.coords - this.delta > this.offsetStop:
-        this.coords -= this.delta
-      else:
-        this.endUpdate
+    this.coords += this.delta
 
-    of DIRECTION_BOTTOM: 
-
+    case this.direction
+    of DIRECTION_TOP, DIRECTION_LEFT:
       if this.coords + this.delta < this.offsetStop:
-        this.coords += this.delta
-      else:
-        this.endUpdate
-
-    of DIRECTION_LEFT: 
-
-      if this.coords - this.delta > this.offsetStop:
-        this.coords -= this.delta
-      else:
-        this.endUpdate
-
-    of DIRECTION_RIGHT: 
-
-      if this.coords + this.delta < this.offsetStop:
-        this.coords += this.delta
-      else:
-        this.endUpdate
-
+        this.eventEndMove
+    of DIRECTION_BOTTOM, DIRECTION_RIGHT:
+      if this.coords + this.delta > this.offsetStop:
+        this.eventEndMove
     else: discard
 
 proc draw*(this: TProtagonist) =
   cast[TCattyGameObject](this).draw
+
+proc onMove(this: TProtagonist, event: TEventStartMove) = 
+
+  this.offsetStop = event.offsetStop
+  this.delta = event.delta
+  this.isMoving = true
+  this.direction = event.direction
+
+  if not this.isStepArrow:
+    case this.direction
+    of DIRECTION_LEFT: this.playAnim ANIM_PROTAGONIST_LEFT
+    of DIRECTION_RIGHT: this.playAnim ANIM_PROTAGONIST_RIGHT
+    of DIRECTION_TOP: this.playAnim ANIM_PROTAGONIST_TOP
+    of DIRECTION_BOTTOM: this.playAnim ANIM_PROTAGONIST_BOTTOM
+    else: discard
+
+proc onUserEvent*(this: TProtagonist, event: TUserEvent) =
+  case event.code
+  of EVENT_PROTAGONIST_START_MOVE: this.onMove(cast[TEventStartMove](event.data1))
+  else: discard
