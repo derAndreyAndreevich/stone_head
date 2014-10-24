@@ -15,6 +15,20 @@ proc `[]`*(this: TTileList, x, y: int): TTile =
 
   return TTile(coords: (x, y))
 
+proc `[]`*(this: TTileList, coords: TCattyCoords): TTile = this[coords.x, coords.y]
+
+proc `<>`*(this: TTileList, x, y: int): TTile =
+  for tile in this:
+    if tile.coords == (x, y) and tile.kind > 0:
+      return tile
+
+  return TTile(coords: (x, y))
+
+proc `<>`*(this: TTileList, coords: TCattyCoords): TTile = this[coords.x, coords.y]
+
+
+
+
 
 proc loadMap*(this: TGameField, id: int) = 
   let 

@@ -16,9 +16,16 @@ const
   ANIM_OFFSET_PROTAGONIST = 8
   ANIM_OFFSET_SIGHTING = 2
 
-  ARROWS_SET = {TYPE_ALEFT, TYPE_ARIGHT, TYPE_ATOP, TYPE_ABOTTOM, TYPE_AHORIZONTAL, TYPE_AVERTICAL, TYPE_AVERTICAL}
-  ARROWS_HORIZONTAL_SET = {TYPE_ALEFT, TYPE_ARIGHT, TYPE_AHORIZONTAL, TYPE_AALL}
-  ARROWS_VERTICAL_SET = {TYPE_ATOP, TYPE_ABOTTOM, TYPE_AVERTICAL, TYPE_AALL}
+  AALL_SET = {TYPE_ALEFT, TYPE_ARIGHT, TYPE_ATOP, TYPE_ABOTTOM, TYPE_AHORIZONTAL, TYPE_AVERTICAL, TYPE_AVERTICAL}
+  AHORIZONTAL_SET = {TYPE_ALEFT, TYPE_ARIGHT, TYPE_AHORIZONTAL, TYPE_AALL}
+  AVERTICAL_SET = {TYPE_ATOP, TYPE_ABOTTOM, TYPE_AVERTICAL, TYPE_AALL}
+  ARIGHT_SET = {TYPE_ARIGHT, TYPE_AHORIZONTAL, TYPE_AALL}
+  ALEFT_SET = {TYPE_ALEFT, TYPE_AHORIZONTAL, TYPE_AALL}
+  ATOP_SET = {TYPE_ATOP, TYPE_AVERTICAL, TYPE_AALL}
+  ABOTTOM_SET = {TYPE_ABOTTOM, TYPE_AVERTICAL, TYPE_AALL}
+
+  CPROTAGONIST_SET = {TYPE_NIL, TYPE_TILE_WALL}
+
 
 type
   TGameDispatcher* = ref object of TCattyGameObject
@@ -41,7 +48,7 @@ proc gameField(this: TGameDispatcher): TGameField =
 
 proc tile(this: TGameDispatcher): TTile = 
   for tile in this.gameField.tiles:
-    if tile.kind in ARROWS_SET and tile.isActive:
+    if tile.kind in AALL_SET and tile.isActive:
        return tile
 
 
@@ -83,124 +90,149 @@ proc getOffsetArrow(this: TGameDispatcher, direction: uint32, arrow: TTile): TCa
   while true:
     case direction
     of DIRECTION_LEFT:
-      if arrow.kind notin ARROWS_HORIZONTAL_SET - {TYPE_ARIGHT}:
+      if arrow.kind notin ALEFT_SET:
         result = arrow.coords
         break
 
       if result == (-1, -1):
-        result = arrow.x - SCALE
+        result = (arrow.coords.x - SCALE, arrow.coords.y)
 
-      if this.gameField.getTile(result, arrow.y).kind notin {TYPE_NIL}:
-        result += SCALE
+      if this.gameField.tiles[result].kind notin {TYPE_NIL}:
+        result += (SCALE, 0)
         break
       else:
-        result -= SCALE
+        result -= (SCALE, 0)
 
     of DIRECTION_RIGHT:
-      if arrow.kind notin {TYPE_ARIGHT, TYPE_AHORIZONTAL, TYPE_AALL}:
-        result = arrow.x
+      if arrow.kind notin ARIGHT_SET:
+        result = arrow.coords
         break
 
-      if result == -1:
-        result = arrow.x + SCALE
+      if result == (-1, -1):
+        result = (arrow.coords.x + SCALE, arrow.coords.y)
 
-      if this.gameField.getTile(result, arrow.y).kind notin {TYPE_NIL}:
-        result -= SCALE
+      if this.gameField.tiles[result].kind notin {TYPE_NIL}:
+        result -= (SCALE, 0)
         break
       else:
-        result += SCALE
+        result += (SCALE, 0)
 
     of DIRECTION_TOP:
-      if arrow.kind notin {TYPE_ATOP, TYPE_AVERTICAL, TYPE_AALL}:
-        result = arrow.y
+      if arrow.kind notin ATOP_SET:
+        result = arrow.coords
         break
 
-      if result == -1:
-        result = arrow.y - SCALE
+      if result == (-1, -1):
+        result = (0, arrow.coords.y - SCALE)
 
-      if this.gameField.getTile(arrow.x, result).kind notin {TYPE_NIL}:
-        result += SCALE
+      if this.gameField.tiles[result].kind notin {TYPE_NIL}:
+        result += (0, SCALE)
         break
       else:
-        result -= SCALE
+        result -= (0, SCALE)
 
     of DIRECTION_BOTTOM:
-      if arrow.kind notin {TYPE_ABOTTOM, TYPE_AVERTICAL, TYPE_AALL}:
-        result = arrow.y
+      if arrow.kind notin ABOTTOM_SET:
+        result = arrow.coords
         break
 
-      if result == -1:
-        result = arrow.y + SCALE
+      if result == (-1, -1):
+        result = (0, arrow.coords.y + SCALE)
 
-      if this.gameField.getTile(arrow.x, result).kind notin {TYPE_NIL}:
-        result -= SCALE
+      if this.gameField.tiles[result].kind notin {TYPE_NIL}:
+        result -= (0, SCALE)
         break
       else:
-        result += SCALE
+        result += (0, SCALE)
 
     else: discard
 
 
-proc isCollision(this: TGameDispatcher, gameObjectType: uint32 = TYPE_PROTAGONIST, x, y: int = 0): bool = 
-  if gameObjectType in {TYPE_PROTAGONIST}:
-    result = this.gameField.getTile(x, y).kind in {TYPE_NIL, TYPE_TILE_WALL}
+
 
 
 proc onKeyDownProtagonist(this: TGameDispatcher, key: sdl.TKey) =
   var 
     self = this.protagonist
-    offset = 0
-    stepTile = this.gameField.getTile(self.x, self.y)
+    offset, offsetArrow = (0, 0)
+    stepTile = this.gameField.tiles[self.coords]
 
+  proc protagonistIsCollision(coords: TCattyCoords): bool = this.gameField.tiles[coords].kind in CPROTAGONIST_SET
 
-  proc protagonistMove(direction: uint32, offset: int, isAnim: bool = false) = 
-    if isAnim:
-      case direction
-      of DIRECTION_TOP: self.playAnim(ANIM_PROTAGONIST_TOP)
-      of DIRECTION_BOTTOM: self.playAnim(ANIM_PROTAGONIST_BOTTOM)
-      of DIRECTION_LEFT: self.playAnim(ANIM_PROTAGONIST_LEFT)
-      of DIRECTION_RIGHT: self.playAnim(ANIM_PROTAGONIST_RIGHT)
-      else: discard
+  proc protagonistMove(offset: TCattyCoords, isAnim: bool = false): TCattyCoords {.discardable.} = 
+    if offset.x > self.coords.x:
+      self.direction = DIRECTION_RIGHT
+      if isAnim: 
+        self.playAnim ANIM_PROTAGONIST_RIGHT
+        self.delta = (SCALE div ANIM_OFFSET_PROTAGONIST, 0)
+      else:
+        self.delta = (SCALE div ANIM_OFFSET_SIGHTING, 0)
+
+    elif offset.x < self.coords.x:
+      self.direction = DIRECTION_LEFT
+      if isAnim: 
+        self.playAnim ANIM_PROTAGONIST_LEFT
+        self.delta = (-1 * (SCALE div ANIM_OFFSET_PROTAGONIST), 0)
+      else:
+        self.delta = (-1 * (SCALE div ANIM_OFFSET_SIGHTING), 0)
+
+    elif offset.y > self.coords.y: 
+      self.direction = DIRECTION_BOTTOM
+      if isAnim: 
+        self.playAnim ANIM_PROTAGONIST_BOTTOM
+        self.delta = (0, SCALE div ANIM_OFFSET_PROTAGONIST)
+      else:
+        self.delta = (0, SCALE div ANIM_OFFSET_SIGHTING)
+
+    elif: 
+      self.direction = DIRECTION_TOP
+      if isAnim: 
+        self.playAnim ANIM_PROTAGONIST_TOP
+        self.delta = (0, -1 * (SCALE div ANIM_OFFSET_PROTAGONIST))
+      else:
+        self.delta = (0, -1 * (SCALE div ANIM_OFFSET_SIGHTING))
+
 
     self.isMoving = true
-    self.direction = direction
     self.offsetStop = offset
-    self.dy = SCALE div (if isAnim: ANIM_OFFSET_PROTAGONIST else: ANIM_OFFSET_SIGHTING)
-    self.dx = SCALE div (if isAnim: ANIM_OFFSET_PROTAGONIST else: ANIM_OFFSET_SIGHTING)
 
-  proc arrowMove(direction: uint32, offset: int) = 
+    return direction
+
+  proc arrowMove(direction: uint32, offset: TCattyCoords): uint32 {.discardable.} = 
     stepTile.isMoving = true
     stepTile.direction = direction
     stepTile.offsetStop = offset
-    stepTile.dx = SCALE div ANIM_OFFSET_SIGHTING
-    stepTile.dy = SCALE div ANIM_OFFSET_SIGHTING
+    # stepTile.dx = SCALE div ANIM_OFFSET_SIGHTING
+    # stepTile.dy = SCALE div ANIM_OFFSET_SIGHTING
+
+    return direction
+
 
   if not self.isMoving:
 
     case key
     of K_UP, K_W:
-      offset = self.y - SCALE
+      offset = (self.coords.x, self.coords.y - SCALE)
 
-      let isntCollision = self.y > 0 and not this.isCollision(TYPE_PROTAGONIST, self.x, offset)
+      let isntCollision = 
+        self.coords.y > 0 and not this.protagonistIsCollision(offset)
 
-      if stepTile.kind in {TYPE_ATOP, TYPE_AVERTICAL, TYPE_AALL}:
+      if stepTile.kind in ATOP_SET:
 
-        protagonistMove(DIRECTION_TOP, this.getOffsetArrow(DIRECTION_TOP, stepTile))
-        arrowMove(DIRECTION_TOP, this.getOffsetArrow(DIRECTION_TOP, stepTile))
+        offsetArrow = DIRECTION_TOP.getOffsetArrow(stepTile)
+        DIRECTION_TOP.protagonistMove(offsetArrow).arrowMove(offsetArrow)
 
-        if isntCollision: 
-          protagonistMove(DIRECTION_TOP, offset, true)
+        if isntCollision: DIRECTION_TOP.protagonistMove(offset, true)
 
-      elif isntCollision: 
-        protagonistMove(DIRECTION_TOP, offset, true)
+      elif isntCollision: DIRECTION_TOP.protagonistMove(offset, true)
 
     of K_DOWN, K_S:
-      offset = self.y + SCALE
+      offset = (self.coords.x, self.coords.y + SCALE)
 
-      let isntCollision = self.y < SCREEN_HEIGHT - SCALE and not this.isCollision(TYPE_PROTAGONIST, self.x, offset)
+      let isntCollision = 
+        self.coords.y < SCREEN_HEIGHT - SCALE and not this.protagonistIsCollision(offset)
 
-        
-      if stepTile.kind in {TYPE_ABOTTOM, TYPE_AVERTICAL, TYPE_AALL}:
+      if stepTile.kind in ABOTTOM_SET:
         protagonistMove(DIRECTION_BOTTOM, this.getOffsetArrow(DIRECTION_BOTTOM, stepTile))
         arrowMove(DIRECTION_BOTTOM, this.getOffsetArrow(DIRECTION_BOTTOM, stepTile))
 
@@ -209,12 +241,12 @@ proc onKeyDownProtagonist(this: TGameDispatcher, key: sdl.TKey) =
       elif isntCollision: protagonistMove(DIRECTION_BOTTOM, offset, true)
 
     of K_LEFT, K_A:
-      offset = self.x - SCALE
+      offset = (self.coords.x - SCALE, self.coords.y)
 
-      let isntCollision = self.x > 0 and not this.isCollision(TYPE_PROTAGONIST, offset, self.y)
+      let isntCollision = 
+        self.coords.x > 0 and not this.protagonistIsCollision(offset)
 
-
-      if stepTile.kind in {TYPE_ALEFT, TYPE_AHORIZONTAL, TYPE_AALL}:
+      if stepTile.kind in ALEFT_SET:
 
         protagonistMove(DIRECTION_LEFT, this.getOffsetArrow(DIRECTION_LEFT, stepTile))
         arrowMove(DIRECTION_LEFT, this.getOffsetArrow(DIRECTION_LEFT, stepTile))
@@ -224,12 +256,13 @@ proc onKeyDownProtagonist(this: TGameDispatcher, key: sdl.TKey) =
       elif isntCollision: protagonistMove(DIRECTION_LEFT, offset, true)
 
     of K_RIGHT, K_D:
-      offset = self.x + SCALE
+      offset = (self.coords.x + SCALE, self.coords.y)
 
-      let isntCollision = self.x < SCREEN_WIDTH - SCALE and not this.isCollision(TYPE_PROTAGONIST, offset, self.y)
+      let isntCollision = 
+        self.coords.x < SCREEN_WIDTH - SCALE and not this.protagonistIsCollision(offset)
 
 
-      if stepTile.kind in {TYPE_ARIGHT, TYPE_AHORIZONTAL, TYPE_AALL}:
+      if stepTile.kind in ARIGHT_SET:
 
         protagonistMove(DIRECTION_RIGHT, this.getOffsetArrow(DIRECTION_RIGHT, stepTile))
         arrowMove(DIRECTION_RIGHT, this.getOffsetArrow(DIRECTION_RIGHT, stepTile))
@@ -347,7 +380,7 @@ proc onKeyDown*(this: TGameDispatcher, key: sdl.TKey) =
       if this.active in {ACTIVE_PROTAGONIST, ACTIVE_TILE}:
         this.activate(ACTIVE_SIGHTING)
 
-      elif this.active in {ACTIVE_SIGHTING} and tile.kind in ARROWS_SET:
+      elif this.active in {ACTIVE_SIGHTING} and tile.kind in AALL_SET:
 
         if this.protagonist.x == this.sighting.x and this.protagonist.y == this.sighting.y:
           this.active = ACTIVE_PROTAGONIST
