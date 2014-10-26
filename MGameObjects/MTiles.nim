@@ -22,6 +22,22 @@ proc eventEndMove(this: TTile) =
 
   discard sdl.pushEvent(cast[sdl.PEvent](addr event))
 
+proc show*(this: TTile): TTile {.discardable.} = 
+  this.isDraw = true
+  return this
+
+proc hide*(this: TTile): TTile {.discardable.} =
+  this.isDraw = false
+  return this
+
+proc activate*(this: TTile): TTile {.discardable.} =
+  this.isActive = true
+  return this
+
+proc deactivate*(this: TTile): TTile {.discardable.} =
+  this.isActive = false
+  return this
+
 proc initialization*(this: TTile): TTile {.discardable.} = 
   cast[TCattyGameObject](this).initialization()
 
@@ -43,13 +59,15 @@ proc initialization*(this: TTile): TTile {.discardable.} =
 
 proc update*(this: TTile) =
   if this.isMoving:
-    this.coords += this.delta
+    
 
     case this.direction
     of DIRECTION_TOP, DIRECTION_LEFT:
       if this.coords + this.delta < this.offsetStop:
         this.eventEndMove
+      else: this.coords += this.delta
     of DIRECTION_BOTTOM, DIRECTION_RIGHT:
       if this.coords + this.delta > this.offsetStop:
         this.eventEndMove
+      else: this.coords += this.delta
     else: discard

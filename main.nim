@@ -12,11 +12,12 @@ import
   MGameLogic.MDispatcher,
   MGameLogic.MGlobal
 
+
 application.initialization()
 
 var 
   event: sdl.TEvent
-  userEvent: sdl.TUserEvent
+  userEvent: PUserEvent
 
   dispatcher: TGameDispatcher 
 
@@ -45,15 +46,16 @@ block gameLoopBlock:
           dispatcher.onKeyUp(evKeyboard(addr event).keysym.sym)
 
         of sdl.USEREVENT:
-          userEvent = cast[sdl.TUserEvent](event)
 
+          userEvent = evUser(addr event)
           dispatcher.onUserEvent(userEvent)
 
           for gameObject in gameObjects:
             case gameObject.kind
-            of TYPE_PROTAGONIST: gameObject.asProtagonist.onUserEvent(userEvent)
             of TYPE_GAMEFIELD: gameObject.asGameField.onUserEvent(userEvent)
+            of TYPE_PROTAGONIST: gameObject.asProtagonist.onUserEvent(userEvent)
             else: discard
+
 
         else: discard
 

@@ -3,7 +3,6 @@ import
   opengl, sdl,
   catty.core, catty.gameobjects as MCattyGameObjects,
   MGameLogic.MMaps,
-  MGameLogic.MCast,
   MGameLogic.MGlobal,
   MGameObject,
   MTiles
@@ -24,18 +23,18 @@ proc respawnTile*(this: TGameField): TTile =
       return tile
 
 
-proc loadMap*(this: TGameField, id: int) = 
-  let 
+proc loadMap*(this: TGameField) = 
+  var
     settingsFile = os.getAppDir() / "settings.json"
-    currentMap = cast[int](settingsFile.parseFile()["currentMap"].num)
     file = settingsFile.parseFile()
+    currentMap = cast[int](file["currentMap"].num)
 
 
   this.tiles = @[]
 
   for i in countup(0, M - 1):
     for j in countup(0, N - 1):
-      let 
+      var
         symbol = file["maps"][currentMap][i][j].str
         x = j * SCALE
         y = i * SCALE
@@ -83,17 +82,13 @@ proc loadMap*(this: TGameField, id: int) =
       )
 
 proc initialization*(this: TGameField): TGameField {.discardable.} = 
-  cast[TCattyGameObject](this).initialization()
-
-  this.loadMap(0)
-
   this.kind = TYPE_GAMEFIELD
   this.isDraw = true
   this.coords = (0, 0)
   this.size = (20 * SCALE, 11 * SCALE)
   this.texture = application.getTexture("bg")
-  
-  this.loadMap(0)
+
+  this.loadMap
 
   return this
 
@@ -118,7 +113,7 @@ proc onMoveArrow(this: TGameField, event: TEventStartMove) =
   movingTile.direction = computeDirection(event.coords, event.offsetStop)
 
 
-proc onUserEvent*(this: TGameField, event: sdl.TUserEvent) = 
+proc onUserEvent*(this: TGameField, event: PUserEvent) = 
   case event.code
   of EVENT_TILE_ARROW_START_MOVE: this.onMoveArrow(cast[TEventStartMove](event.data1))
   else: discard

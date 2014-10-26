@@ -8,6 +8,23 @@ import
 const
   COLLISION_SET = {TYPE_NIL, TYPE_TILE_WALL}
 
+proc show*(this: TProtagonist): TProtagonist {.discardable.} = 
+  this.isDraw = true
+  return this
+
+proc hide*(this: TProtagonist): TProtagonist {.discardable.} =
+  this.isDraw = false
+  return this
+
+proc activate*(this: TProtagonist): TProtagonist {.discardable.} =
+  this.isActive = true
+  return this
+
+proc deactivate*(this: TProtagonist): TProtagonist {.discardable.} =
+  this.isActive = false
+  return this
+
+
 proc isCollision*(this: TProtagonist, tile: TTile): bool = tile.kind in COLLISION_SET
 
 proc initialization*(this: TProtagonist): TProtagonist {.discardable.} = 
@@ -83,16 +100,17 @@ proc update*(this: TProtagonist) =
   cast[TCattyGameObject](this).update
 
   if this.isMoving:
-
-    this.coords += this.delta
-
     case this.direction
     of DIRECTION_TOP, DIRECTION_LEFT:
       if this.coords + this.delta < this.offsetStop:
         this.eventEndMove
+      else: this.coords += this.delta
+
     of DIRECTION_BOTTOM, DIRECTION_RIGHT:
       if this.coords + this.delta > this.offsetStop:
         this.eventEndMove
+      else: this.coords += this.delta
+
     else: discard
 
 proc draw*(this: TProtagonist) =
@@ -113,7 +131,7 @@ proc onMove(this: TProtagonist, event: TEventStartMove) =
     of DIRECTION_BOTTOM: this.playAnim ANIM_PROTAGONIST_BOTTOM
     else: discard
 
-proc onUserEvent*(this: TProtagonist, event: TUserEvent) =
+proc onUserEvent*(this: TProtagonist, event: PUserEvent) =
   case event.code
   of EVENT_PROTAGONIST_START_MOVE: this.onMove(cast[TEventStartMove](event.data1))
   else: discard

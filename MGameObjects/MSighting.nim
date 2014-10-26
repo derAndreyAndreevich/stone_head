@@ -19,6 +19,23 @@ proc eventEndMove(this: TSighting) =
 
   discard sdl.pushEvent(cast[sdl.PEvent](addr event))
 
+proc show*(this: TSighting): TSighting {.discardable.} = 
+  this.isDraw = true
+  return this
+
+proc hide*(this: TSighting): TSighting {.discardable.} =
+  this.isDraw = false
+  return this
+
+proc activate*(this: TSighting): TSighting {.discardable.} =
+  this.isActive = true
+  return this
+
+proc deactivate*(this: TSighting): TSighting {.discardable.} =
+  this.isActive = false
+  return this
+
+
 proc initialization*(this: TSighting): TSighting {.discardable.} = 
 
   cast[TCattyGameObject](this).initialization
