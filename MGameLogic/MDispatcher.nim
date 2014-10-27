@@ -31,23 +31,6 @@ const
   CPROTAGONIST_SET = {TYPE_NIL, TYPE_TILE_WALL}
   CARROW_SET = AALL_SET + {TYPE_TILE_WALL, TYPE_TILE}
 
-  # EVENT_PROTAGONIST_START_MOVE* = 1
-  # EVENT_PROTAGONIST_END_MOVE* = 2
-  # EVENT_PROTAGONIST_ACTIVATE* = 3
-  # EVENT_PROTAGONIST_DEACTIVATE* = 4
-
-  # EVENT_SIGHTING_START_MOVE* = 5
-  # EVENT_SIGHTING_END_MOVE* = 6
-  # EVENT_SIGHTING_ACTIVATE* = 7
-  # EVENT_SIGHTING_DEACTIVATE* = 8
-
-  # EVENT_TILE_ARROW_START_MOVE* = 9
-  # EVENT_TILE_ARROW_END_MOVE* = 10
-  # EVENT_TILE_ARROW_ACTIVATE* = 11
-  # EVENT_TILE_ARROW_DEACTIVATE* = 12
-
-
-
 type
   TGameDispatcher* = ref object of TCattyGameObject
     active*: uint32
@@ -125,7 +108,10 @@ proc onKeyDownProtagonist(this: TGameDispatcher, key: sdl.TKey) =
     isCollision: bool
 
   if key in {K_UP, K_W}:
-    isCollision = this.protagonist.isCollision(this.gameField.tiles[this.protagonist.coords - (0, SCALE)])
+    isCollision = this
+      .protagonist.isCollision(
+        this.gameField.tiles[this.protagonist.coords - (0, SCALE)]
+      )
 
     if this.protagonist.isStepArrow and isCollision and this.tile.kind in ATOP_SET:
       var
@@ -217,7 +203,38 @@ proc onKeyDownProtagonist(this: TGameDispatcher, key: sdl.TKey) =
 
 proc onKeyDownArrowTile(this: TGameDispatcher, key: sdl.TKey) = discard
 
-proc onKeyDownSighting(this: TGameDispatcher, key: sdl.TKey) = discard
+proc onKeyDownSighting(this: TGameDispatcher, key: sdl.TKey) =
+  var
+    c, o, d: TCattyCoords
+
+  if key in {K_UP, K_W} and (this.sighting.coords - (0, SCALE)).y >= 0:
+    c = this.sighting.coords
+    o = this.sighting.coords - (0, SCALE)
+    d = (-1 * DELTA_SIGHTING, 0)
+
+    DIRECTION_TOP.fireSightingStartMove(c, o, d)
+
+  elif key in {K_DOWN, K_S} and (this.sighting.coords + (0, SCALE)).y <= SCREEN_HEIGHT:
+    c = this.sighting.coords
+    o = this.sighting.coords + (0, SCALE)
+    d = (DELTA_SIGHTING, 0)
+
+    DIRECTION_TOP.fireSightingStartMove(c, o, d)
+
+  elif key in {K_LEFT, K_A} and (this.sighting.coords - (SCALE, 0)).x >= 0:
+    c = this.sighting.coords
+    o = this.sighting.coords - (SCALE, 0)
+    d = (-1 * DELTA_SIGHTING, 0)
+
+    DIRECTION_LEFT.fireSightingStartMove(c, o, d)
+
+  elif key in {K_RIGHT, K_D} and (this.sighting.coords + (SCALE, 0)).x <= SCREEN_WIDTH:
+    c = this.sighting.coords
+    o = this.sighting.coords + (SCALE, 0)
+    d = (DELTA_SIGHTING, 0)
+
+    DIRECTION_RIGHT.fireSightingStartMove(c, o, d)
+
 
 
 proc initialization*(this: TGameDispatcher): TGameDispatcher {.discardable.} = 
@@ -258,12 +275,14 @@ proc onUserEvent*(this: TGameDispatcher, e: PUserEvent) =
 
     var 
       event = cast[TEventEndMove](e.data1)
+      tile = this.gameField.tiles[event.coords]
 
 
-    if this.gameField.tiles[event.coords].kind in AALL_SET:
-      echo "EVENT_PROTAGONIST_END_MOVE: ", event
+    echo tile.kind
+    if tile.kind in AALL_SET:
       event.coords.fireTileArrowActivate()
-
+    elif tile.kind in {TYPE_EXIT}:
+      echo "exit"
 
 
   of EVENT_SIGHTING_ACTIVATE: discard

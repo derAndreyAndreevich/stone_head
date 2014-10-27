@@ -112,7 +112,7 @@ proc onUserEvent*(this: TProtagonist, e: PUserEvent) =
   of EVENT_PROTAGONIST_ACTIVATE: this.activate
   of EVENT_PROTAGONIST_DEACTIVATE: this.deactivate
   of EVENT_PROTAGONIST_START_MOVE: 
-    var event = cast[TEventStartMove](e.data1)
+    var event = e.data1.asEventStartMove
 
     this
       .setOffsetStop(event.offsetStop)

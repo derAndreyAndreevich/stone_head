@@ -111,12 +111,12 @@ proc update*(this: TGameField) =
 proc onUserEvent*(this: TGameField, e: PUserEvent) = 
   case e.code
   of EVENT_TILE_ARROW_START_MOVE:
-    this.tiles[cast[TEventStartMove](e.data1).coords].onUserEvent(e)
+    this.tiles[e.data1.asEventStartMove.coords].onUserEvent(e)
   of EVENT_TILE_ARROW_END_MOVE:
-    this.tiles[cast[TEventEndMove](e.data1).coords].onUserEvent(e)
+    this.tiles[e.data1.asEventEndMove.coords].onUserEvent(e)
   of EVENT_TILE_ARROW_ACTIVATE:
     this.tiles.each do (tile: var TTile): tile.isActive = false
-    this.tiles[cast[TEventActivate](e.data1).coords].onUserEvent(e)
+    this.tiles[e.data1.asEventActivate.coords].onUserEvent(e)
   of EVENT_TILE_ARROW_DEACTIVATE:
-    this.tiles[cast[TEventDeactivate](e.data1).coords].onUserEvent(e)
+    this.tiles[e.data1.asEventDeactivate.coords].onUserEvent(e)
   else: discard

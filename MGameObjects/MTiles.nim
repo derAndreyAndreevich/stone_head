@@ -55,8 +55,8 @@ proc update*(this: TTile) =
 
 proc onUserEvent*(this: TTile, e: PUserEvent) =
   case e.code
-  of EVENT_TILE_ARROW_START_MOVE: 
-    var event = cast[TEventStartMove](e.data1)
+  of EVENT_TILE_ARROW_START_MOVE:
+    var event = e.data1.asEventStartMove
 
     this
       .setOffsetStop(event.offsetStop)

@@ -110,80 +110,82 @@ type
   PEventActivate* = ptr TEventActivate
   PEventDeactivate* = ptr TEventDeactivate
 
-proc toGameEvent(this: TEventStartMove): PEventStartMove = cast[PEventStartMove](this)
-proc toGameEvent(this: TEventEndMove): PEventEndMove = cast[PEventEndMove](this)
-proc toGameEvent(this: TEventActivate): PEventActivate = cast[PEventActivate](this)
-proc toGameEvent(this: TEventDeactivate): PEventDeactivate = cast[PEventDeactivate](this)
+proc toPEvent(this: var TUserEvent): PEvent = cast[PEvent](addr this)
 
-proc asGameEventStartMove(this: PEventStartMove): TEventStartMove = cast[TEventStartMove](this)
-proc asGameEventEndMove(this: PEventEndMove): TEventEndMove = cast[TEventEndMove](this)
-proc asGameEventActivate(this: PEventActivate): TEventActivate = cast[TEventActivate](this)
-proc asGameEventDeactivate(this: PEventDeactivate): TEventDeactivate = cast[TEventDeactivate](this)
+proc toGameEvent*(this: TEventStartMove): PEventStartMove = cast[PEventStartMove](this)
+proc toGameEvent*(this: TEventEndMove): PEventEndMove = cast[PEventEndMove](this)
+proc toGameEvent*(this: TEventActivate): PEventActivate = cast[PEventActivate](this)
+proc toGameEvent*(this: TEventDeactivate): PEventDeactivate = cast[PEventDeactivate](this)
+
+proc asEventStartMove*(this: pointer): TEventStartMove = cast[TEventStartMove](this)
+proc asEventEndMove*(this: pointer): TEventEndMove = cast[TEventEndMove](this)
+proc asEventActivate*(this: pointer): TEventActivate = cast[TEventActivate](this)
+proc asEventDeactivate*(this: pointer): TEventDeactivate = cast[TEventDeactivate](this)
 
 
 
 proc fireProtagonistActivate*(coords: TCattyCoords = (0, 0)) = 
   var event = TUserEvent(kind: USEREVENT, code: EVENT_PROTAGONIST_ACTIVATE, data1: TEventActivate(coords: coords).toGameEvent)
-  discard pushEvent(cast[PEvent](addr event))
+  discard event.toPEvent.pushEvent
 
 proc fireSightingActivate*(coords: TCattyCoords = (0, 0)) = 
   var event = TUserEvent(kind: USEREVENT, code: EVENT_SIGHTING_ACTIVATE, data1: TEventActivate(coords: coords).toGameEvent)
-  discard pushEvent(cast[PEvent](addr event))
+  discard event.toPEvent.pushEvent
 
 proc fireTileArrowActivate*(coords: TCattyCoords = (0, 0)) = 
   var event = TUserEvent(kind: USEREVENT, code: EVENT_TILE_ARROW_ACTIVATE, data1: TEventActivate(coords: coords).toGameEvent)
-  discard pushEvent(cast[PEvent](addr event))
+  discard event.toPEvent.pushEvent
 
 proc fireProtagonistDeactivate*(coords: TCattyCoords = (0, 0)) = 
-  var event = TUserEvent(kind: USEREVENT, code: EVENT_PROTAGONIST_DEACTIVATE, data1: cast[PEventDeactivate](TEventDeactivate(coords: coords)))
-  discard pushEvent(cast[PEvent](addr event))
+  var event = TUserEvent(kind: USEREVENT, code: EVENT_PROTAGONIST_DEACTIVATE, data1: TEventDeactivate(coords: coords).toGameEvent)
+  discard event.toPEvent.pushEvent
 
 proc fireSightingDeactivate*(coords: TCattyCoords = (0, 0)) = 
-  var event = TUserEvent(kind: USEREVENT, code: EVENT_SIGHTING_DEACTIVATE, data1: cast[PEventDeactivate](TEventDeactivate(coords: coords)))
-  discard pushEvent(cast[PEvent](addr event))
+  var event = TUserEvent(kind: USEREVENT, code: EVENT_SIGHTING_DEACTIVATE, data1: TEventDeactivate(coords: coords).toGameEvent)
+  discard event.toPEvent.pushEvent
 
 proc fireTileArrowDeactivate*(coords: TCattyCoords = (0, 0)) = 
-  var event = TUserEvent(kind: USEREVENT, code: EVENT_TILE_ARROW_DEACTIVATE, data1: cast[PEventDeactivate](TEventDeactivate(coords: coords)))
-  discard pushEvent(cast[PEvent](addr event))
+  var event = TUserEvent(kind: USEREVENT, code: EVENT_TILE_ARROW_DEACTIVATE, data1: TEventDeactivate(coords: coords).toGameEvent)
+  discard event.toPEvent.pushEvent
 
 proc fireProtagonistStartMove*(direction: uint32, coords, offsetStop, delta: TCattyCoords) = 
-  var event = TUserEvent(kind: USEREVENT, code: EVENT_PROTAGONIST_START_MOVE, data1: cast[PEventStartMove](TEventStartMove(
+  var event = TUserEvent(kind: USEREVENT, code: EVENT_PROTAGONIST_START_MOVE, data1: TEventStartMove(
     direction: direction,
     coords: coords,
     offsetStop: offsetStop,
     delta: delta
-  )))
-  discard pushEvent(cast[PEvent](addr event))
+  ).toGameEvent)
+  discard event.toPEvent.pushEvent
 
 proc fireSightingStartMove*(direction: uint32, coords, offsetStop, delta: TCattyCoords) = 
-  var event = TUserEvent(kind: USEREVENT, code: EVENT_SIGHTING_START_MOVE, data1: cast[PEventStartMove](TEventStartMove(
+  var event = TUserEvent(kind: USEREVENT, code: EVENT_SIGHTING_START_MOVE, data1: TEventStartMove(
     direction: direction,
     coords: coords,
     offsetStop: offsetStop,
     delta: delta
-  )))
-  discard pushEvent(cast[PEvent](addr event))
+  ).toGameEvent)
+  discard event.toPEvent.pushEvent
 
 proc fireTileArrowStartMove*(direction: uint32, coords, offsetStop, delta: TCattyCoords) = 
-  var event = TUserEvent(kind: USEREVENT, code: EVENT_TILE_ARROW_START_MOVE, data1: cast[PEventStartMove](TEventStartMove(
+  var event = TUserEvent(kind: USEREVENT, code: EVENT_TILE_ARROW_START_MOVE, data1: TEventStartMove(
     direction: direction,
     coords: coords,
     offsetStop: offsetStop,
     delta: delta
-  )))
-  discard pushEvent(cast[PEvent](addr event))
+  ).toGameEvent)
+  discard event.toPEvent.pushEvent
 
 proc fireProtagonistEndMove*(coords: TCattyCoords = (0, 0)) = 
-  var event = TUserEvent(kind: USEREVENT, code: EVENT_PROTAGONIST_END_MOVE, data1: cast[PEventEndMove](TEventEndMove(coords: coords)))
-  discard pushEvent(cast[PEvent](addr event))
+  var event = TUserEvent(kind: USEREVENT, code: EVENT_PROTAGONIST_END_MOVE, data1: TEventEndMove(coords: coords).toGameEvent)
+  discard event.toPEvent.pushEvent
 
 proc fireSightingEndMove*(coords: TCattyCoords = (0, 0)) = 
-  var event = TUserEvent(kind: USEREVENT, code: EVENT_SIGHTING_END_MOVE, data1: cast[PEventEndMove](TEventEndMove(coords: coords)))
-  discard pushEvent(cast[PEvent](addr event))
+  var event = TUserEvent(kind: USEREVENT, code: EVENT_SIGHTING_END_MOVE, data1: TEventEndMove(coords: coords).toGameEvent)
+  discard event.toPEvent.pushEvent
 
 proc fireTileArrowEndMove*(coords: TCattyCoords = (0, 0)) = 
-  var event = TUserEvent(kind: USEREVENT, code: EVENT_TILE_ARROW_END_MOVE, data1: cast[PEventEndMove](TEventEndMove(coords: coords)))
-  discard pushEvent(cast[PEvent](addr event))
+  var event = TUserEvent(kind: USEREVENT, code: EVENT_TILE_ARROW_END_MOVE, data1: TEventEndMove(coords: coords).toGameEvent)
+  discard event.toPEvent.pushEvent
 
 
 template gameObjectSetters*(t: typeDesc): stmt {.immediate.} =

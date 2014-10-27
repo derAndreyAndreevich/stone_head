@@ -49,19 +49,19 @@ proc draw*(this: TSighting) =
 proc onUserEvent*(this: TSighting, e: PUserEvent) =
   case e.code
   of EVENT_SIGHTING_ACTIVATE: 
-    var event = cast[TEventActivate](e.data1)
+    var event = e.data1.asEventActivate
 
     this
       .setCoords(event.coords)
       .activate.show
 
   of EVENT_SIGHTING_DEACTIVATE:
-    var event = cast[TEventDeactivate](e.data1)
+    var event = e.data1.asEventDeactivate
 
     this.deactivate.hide
 
   of EVENT_SIGHTING_START_MOVE:
-    var event = cast[TEventStartMove](e.data1)
+    var event = e.data1.asEventStartMove
 
     this
       .setOffsetStop(event.offsetStop)
