@@ -75,6 +75,9 @@ type
   TTileList* = seq[TTile]
 
   TGameField* = ref object of TCattyGameObject
+    direction*: uint32
+    offsetStop*: TCattyCoords
+    isMoving*, isActive*: bool
     tiles*: TTileList
     movingTile*: TTile
     map*: int
@@ -94,14 +97,127 @@ type
     coords*, offsetStop*, delta*: TCattyCoords
 
   TEventEndMove* = ref object
-    x*, y*: int
+    coords*: TCattyCoords
 
   TEventActivate* = ref object
-    x*, y*: int
+    coords*: TCattyCoords
 
   TEventDeactivate* = ref object
-    x*, y*: int
+    coords*: TCattyCoords
 
+  PEventStartMove* = ptr TEventStartMove
+  PEventEndMove* = ptr TEventEndMove
+  PEventActivate* = ptr TEventActivate
+  PEventDeactivate* = ptr TEventDeactivate
+
+proc toGameEvent(this: TEventStartMove): PEventStartMove = cast[PEventStartMove](this)
+proc toGameEvent(this: TEventEndMove): PEventEndMove = cast[PEventEndMove](this)
+proc toGameEvent(this: TEventActivate): PEventActivate = cast[PEventActivate](this)
+proc toGameEvent(this: TEventDeactivate): PEventDeactivate = cast[PEventDeactivate](this)
+
+proc asGameEventStartMove(this: PEventStartMove): TEventStartMove = cast[TEventStartMove](this)
+proc asGameEventEndMove(this: PEventEndMove): TEventEndMove = cast[TEventEndMove](this)
+proc asGameEventActivate(this: PEventActivate): TEventActivate = cast[TEventActivate](this)
+proc asGameEventDeactivate(this: PEventDeactivate): TEventDeactivate = cast[TEventDeactivate](this)
+
+
+
+proc fireProtagonistActivate*(coords: TCattyCoords = (0, 0)) = 
+  var event = TUserEvent(kind: USEREVENT, code: EVENT_PROTAGONIST_ACTIVATE, data1: TEventActivate(coords: coords).toGameEvent)
+  discard pushEvent(cast[PEvent](addr event))
+
+proc fireSightingActivate*(coords: TCattyCoords = (0, 0)) = 
+  var event = TUserEvent(kind: USEREVENT, code: EVENT_SIGHTING_ACTIVATE, data1: TEventActivate(coords: coords).toGameEvent)
+  discard pushEvent(cast[PEvent](addr event))
+
+proc fireTileArrowActivate*(coords: TCattyCoords = (0, 0)) = 
+  var event = TUserEvent(kind: USEREVENT, code: EVENT_TILE_ARROW_ACTIVATE, data1: TEventActivate(coords: coords).toGameEvent)
+  discard pushEvent(cast[PEvent](addr event))
+
+proc fireProtagonistDeactivate*(coords: TCattyCoords = (0, 0)) = 
+  var event = TUserEvent(kind: USEREVENT, code: EVENT_PROTAGONIST_DEACTIVATE, data1: cast[PEventDeactivate](TEventDeactivate(coords: coords)))
+  discard pushEvent(cast[PEvent](addr event))
+
+proc fireSightingDeactivate*(coords: TCattyCoords = (0, 0)) = 
+  var event = TUserEvent(kind: USEREVENT, code: EVENT_SIGHTING_DEACTIVATE, data1: cast[PEventDeactivate](TEventDeactivate(coords: coords)))
+  discard pushEvent(cast[PEvent](addr event))
+
+proc fireTileArrowDeactivate*(coords: TCattyCoords = (0, 0)) = 
+  var event = TUserEvent(kind: USEREVENT, code: EVENT_TILE_ARROW_DEACTIVATE, data1: cast[PEventDeactivate](TEventDeactivate(coords: coords)))
+  discard pushEvent(cast[PEvent](addr event))
+
+proc fireProtagonistStartMove*(direction: uint32, coords, offsetStop, delta: TCattyCoords) = 
+  var event = TUserEvent(kind: USEREVENT, code: EVENT_PROTAGONIST_START_MOVE, data1: cast[PEventStartMove](TEventStartMove(
+    direction: direction,
+    coords: coords,
+    offsetStop: offsetStop,
+    delta: delta
+  )))
+  discard pushEvent(cast[PEvent](addr event))
+
+proc fireSightingStartMove*(direction: uint32, coords, offsetStop, delta: TCattyCoords) = 
+  var event = TUserEvent(kind: USEREVENT, code: EVENT_SIGHTING_START_MOVE, data1: cast[PEventStartMove](TEventStartMove(
+    direction: direction,
+    coords: coords,
+    offsetStop: offsetStop,
+    delta: delta
+  )))
+  discard pushEvent(cast[PEvent](addr event))
+
+proc fireTileArrowStartMove*(direction: uint32, coords, offsetStop, delta: TCattyCoords) = 
+  var event = TUserEvent(kind: USEREVENT, code: EVENT_TILE_ARROW_START_MOVE, data1: cast[PEventStartMove](TEventStartMove(
+    direction: direction,
+    coords: coords,
+    offsetStop: offsetStop,
+    delta: delta
+  )))
+  discard pushEvent(cast[PEvent](addr event))
+
+proc fireProtagonistEndMove*(coords: TCattyCoords = (0, 0)) = 
+  var event = TUserEvent(kind: USEREVENT, code: EVENT_PROTAGONIST_END_MOVE, data1: cast[PEventEndMove](TEventEndMove(coords: coords)))
+  discard pushEvent(cast[PEvent](addr event))
+
+proc fireSightingEndMove*(coords: TCattyCoords = (0, 0)) = 
+  var event = TUserEvent(kind: USEREVENT, code: EVENT_SIGHTING_END_MOVE, data1: cast[PEventEndMove](TEventEndMove(coords: coords)))
+  discard pushEvent(cast[PEvent](addr event))
+
+proc fireTileArrowEndMove*(coords: TCattyCoords = (0, 0)) = 
+  var event = TUserEvent(kind: USEREVENT, code: EVENT_TILE_ARROW_END_MOVE, data1: cast[PEventEndMove](TEventEndMove(coords: coords)))
+  discard pushEvent(cast[PEvent](addr event))
+
+
+template gameObjectSetters*(t: typeDesc): stmt {.immediate.} =
+  proc setDirection(this: t, value: uint32): t {.discardable.} = 
+    this.direction = value
+    return this
+
+  proc setOffsetStop(this: t, value: TCattyCoords): t {.discardable.} = 
+    this.offsetStop = value
+    return this
+
+  proc setActive(this: t, value: bool): t {.discardable.} = 
+    this.isActive = value
+    return this
+
+  proc setMoving(this: t, value: bool): t {.discardable.} = 
+    this.isMoving = value
+    return this
+
+  proc activate*(this: t): t {.discardable.} =
+    this.isActive = true
+    return this
+
+  proc deactivate*(this: t): t {.discardable.} =
+    this.isActive = false
+    return this
+
+  proc move*(this: t): t {.discardable.} =
+    this.isMoving = true
+    return this
+
+  proc stop*(this: t): t {.discardable.} =
+    this.isMoving = false
+    return this
 
 proc computeDirection*(start, stop: TCattyCoords): uint32 =
   if start.x > stop.x:
@@ -115,6 +231,6 @@ proc computeDirection*(start, stop: TCattyCoords): uint32 =
 
 proc `$`*(this: TTile): string = "TTile(direction: $1, offsetStop: $2, isMoving: $3, isActive: $4)" % [DIRECTION_NAMES[cast[int](this.direction)], $this.offsetStop, $this.isMoving, $this.isActive]
 
-proc `$`*(this: TEventEndMove): string = "TEventEndMove(x: $1, y: $2)" % [$this.x, $this.y]
+proc `$`*(this: TEventEndMove): string = "TEventEndMove(coords: $1)" % [$this.coords]
 
 proc `$`*(this: TEventStartMove): string = "TEventStartMove(coords: $1, offsetStop: $2, delta: $3, isStepArrow: $4)" % [$this.coords, $this.offsetStop, $this.delta]

@@ -8,22 +8,21 @@ import
 const
   COLLISION_SET = {TYPE_NIL, TYPE_TILE_WALL}
 
-proc show*(this: TProtagonist): TProtagonist {.discardable.} = 
-  this.isDraw = true
+cattySetters(TProtagonist)
+gameObjectSetters(TProtagonist)
+
+
+proc setStepArrow(this: TProtagonist, value: bool): TProtagonist {.discardable.} =
+  this.isStepArrow = value
   return this
 
-proc hide*(this: TProtagonist): TProtagonist {.discardable.} =
-  this.isDraw = false
+proc stepArrow(this: TProtagonist): TProtagonist {.discardable.} =
+  this.isStepArrow = true
   return this
 
-proc activate*(this: TProtagonist): TProtagonist {.discardable.} =
-  this.isActive = true
+proc unstepArrow(this: TProtagonist): TProtagonist {.discardable.} =
+  this.isStepArrow = false
   return this
-
-proc deactivate*(this: TProtagonist): TProtagonist {.discardable.} =
-  this.isActive = false
-  return this
-
 
 proc isCollision*(this: TProtagonist, tile: TTile): bool = tile.kind in COLLISION_SET
 
@@ -32,18 +31,15 @@ proc initialization*(this: TProtagonist): TProtagonist {.discardable.} =
   cast[TCattyGameObject](this).initialization
 
 
-  this.kind = TYPE_PROTAGONIST
+  this
+    .setKind(TYPE_PROTAGONIST)
+    .setCoords((SCALE * 14, SCALE * 2))
+    .setSize((SCALE, SCALE))
+    .setSleep(80)
+    .setDirection(DIRECTION_BOTTOM)
+    .setTexture(application.getTexture("protagonist-" + this.direction + "-0"))
+    .show.upgrade.activate
 
-  this.isDraw = true
-  this.isUpdate = true
-  this.isActive = true
-
-  this.coords = (SCALE * 14, SCALE * 2)
-  this.size = (SCALE, SCALE)
-
-  this.direction = DIRECTION_BOTTOM
-  this.texture = application.getTexture("protagonist-" + this.direction + "-0")
-  this.sleep = 80
 
   this.anims.add(@[
     (ANIM_PROTAGONIST_TOP, @[
@@ -82,19 +78,13 @@ proc initialization*(this: TProtagonist): TProtagonist {.discardable.} =
 
   return this
 
-proc eventEndMove(this: TProtagonist) = 
+proc endMove(this: TProtagonist) =
   this.stopAnim
-  this.coords = this.offsetStop
-  this.isMoving = false
-  this.isStepArrow = false
 
-  var
-    data = cast[ptr TEventEndMove](TEventEndMove(x: this.coords.x, y: this.coords.y))
-    event = sdl.TUserEvent(
-      kind: sdl.USEREVENT, code: EVENT_PROTAGONIST_END_MOVE, data1: data
-    )
-
-  discard sdl.pushEvent(cast[sdl.PEvent](addr event))
+  this
+    .setCoords(this.offsetStop)
+    .stepArrow.stop
+    .coords.fireProtagonistEndMove
 
 proc update*(this: TProtagonist) =
   cast[TCattyGameObject](this).update
@@ -103,12 +93,12 @@ proc update*(this: TProtagonist) =
     case this.direction
     of DIRECTION_TOP, DIRECTION_LEFT:
       if this.coords + this.delta < this.offsetStop:
-        this.eventEndMove
+        this.endMove
       else: this.coords += this.delta
 
     of DIRECTION_BOTTOM, DIRECTION_RIGHT:
       if this.coords + this.delta > this.offsetStop:
-        this.eventEndMove
+        this.endMove
       else: this.coords += this.delta
 
     else: discard
@@ -116,22 +106,26 @@ proc update*(this: TProtagonist) =
 proc draw*(this: TProtagonist) =
   cast[TCattyGameObject](this).draw
 
-proc onMove(this: TProtagonist, event: TEventStartMove) = 
 
-  this.offsetStop = event.offsetStop
-  this.delta = event.delta
-  this.isMoving = true
-  this.direction = event.direction
+proc onUserEvent*(this: TProtagonist, e: PUserEvent) =
+  case e.code
+  of EVENT_PROTAGONIST_ACTIVATE: this.activate
+  of EVENT_PROTAGONIST_DEACTIVATE: this.deactivate
+  of EVENT_PROTAGONIST_START_MOVE: 
+    var event = cast[TEventStartMove](e.data1)
 
-  if not this.isStepArrow:
-    case this.direction
-    of DIRECTION_LEFT: this.playAnim ANIM_PROTAGONIST_LEFT
-    of DIRECTION_RIGHT: this.playAnim ANIM_PROTAGONIST_RIGHT
-    of DIRECTION_TOP: this.playAnim ANIM_PROTAGONIST_TOP
-    of DIRECTION_BOTTOM: this.playAnim ANIM_PROTAGONIST_BOTTOM
-    else: discard
+    this
+      .setOffsetStop(event.offsetStop)
+      .setDelta(event.delta)
+      .setDirection(event.direction)
+      .move
 
-proc onUserEvent*(this: TProtagonist, event: PUserEvent) =
-  case event.code
-  of EVENT_PROTAGONIST_START_MOVE: this.onMove(cast[TEventStartMove](event.data1))
+    if not this.isStepArrow:
+      case this.direction
+      of DIRECTION_LEFT: this.playAnim ANIM_PROTAGONIST_LEFT
+      of DIRECTION_RIGHT: this.playAnim ANIM_PROTAGONIST_RIGHT
+      of DIRECTION_TOP: this.playAnim ANIM_PROTAGONIST_TOP
+      of DIRECTION_BOTTOM: this.playAnim ANIM_PROTAGONIST_BOTTOM
+      else: discard
+
   else: discard

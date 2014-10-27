@@ -54,6 +54,7 @@ block gameLoopBlock:
             case gameObject.kind
             of TYPE_GAMEFIELD: gameObject.asGameField.onUserEvent(userEvent)
             of TYPE_PROTAGONIST: gameObject.asProtagonist.onUserEvent(userEvent)
+            of TYPE_SIGHTING: gameObject.asSighting.onUserEvent(userEvent)
             else: discard
 
 

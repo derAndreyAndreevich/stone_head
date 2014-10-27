@@ -6,55 +6,29 @@ import
   MGameLogic.MGlobal
 
 
-proc eventEndMove(this: TSighting) = 
+
+cattySetters(TSighting)
+gameObjectSetters(TSighting)
+
+
+proc endMove(this: TSighting) = 
+
   this.stopAnim
-  this.coords = this.offsetStop
-  this.isMoving = false
-
-  var
-    data = cast[ptr TEventEndMove](TEventEndMove(x: this.coords.x, y: this.coords.y))
-    event = sdl.TUserEvent(
-      kind: sdl.USEREVENT, code: EVENT_SIGHTING_END_MOVE, data1: data
-    )
-
-  discard sdl.pushEvent(cast[sdl.PEvent](addr event))
-
-proc show*(this: TSighting): TSighting {.discardable.} = 
-  this.isDraw = true
-  return this
-
-proc hide*(this: TSighting): TSighting {.discardable.} =
-  this.isDraw = false
-  return this
-
-proc activate*(this: TSighting): TSighting {.discardable.} =
-  this.isActive = true
-  return this
-
-proc deactivate*(this: TSighting): TSighting {.discardable.} =
-  this.isActive = false
-  return this
-
+  this.stop.setCoords(this.offsetStop).coords.fireSightingEndMove
 
 proc initialization*(this: TSighting): TSighting {.discardable.} = 
 
   cast[TCattyGameObject](this).initialization
 
-
-  this.kind = TYPE_SIGHTING
-
-  this.coords = (0, 0)
-  this.size = (SCALE, SCALE)
-
-  this.direction = DIRECTION_BOTTOM
-  this.texture = application.getTexture("sighting")
-  this.sleep = 80
+  this
+    .setKind(TYPE_SIGHTING)
+    .setCoords((0, 0))
+    .setSize((SCALE, SCALE))
+    .setDirection(DIRECTION_BOTTOM)
+    .setTexture(application.getTexture("sighting"))
+    .setSleep(80)
 
   return this
-
-proc endUpdate(this: TSighting) =
-  this.coords = this.offsetStop
-  this.isMoving = false
 
 proc update*(this: TSighting) =
   if this.isMoving:
@@ -63,11 +37,36 @@ proc update*(this: TSighting) =
     case this.direction
     of DIRECTION_TOP, DIRECTION_LEFT:
       if this.coords + this.delta > this.offsetStop:
-        this.eventEndMove
+        this.endMove
     of DIRECTION_BOTTOM, DIRECTION_RIGHT:
       if this.coords + this.delta < this.offsetStop:
-        this.eventEndMove
+        this.endMove
     else: discard
 
 proc draw*(this: TSighting) =
   cast[TCattyGameObject](this).draw
+
+proc onUserEvent*(this: TSighting, e: PUserEvent) =
+  case e.code
+  of EVENT_SIGHTING_ACTIVATE: 
+    var event = cast[TEventActivate](e.data1)
+
+    this
+      .setCoords(event.coords)
+      .activate.show
+
+  of EVENT_SIGHTING_DEACTIVATE:
+    var event = cast[TEventDeactivate](e.data1)
+
+    this.deactivate.hide
+
+  of EVENT_SIGHTING_START_MOVE:
+    var event = cast[TEventStartMove](e.data1)
+
+    this
+      .setOffsetStop(event.offsetStop)
+      .setDelta(event.delta)
+      .setDirection(event.direction)
+      .setMoving(true)
+
+  else: discard

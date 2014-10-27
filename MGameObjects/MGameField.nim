@@ -17,6 +17,10 @@ proc `[]`*(this: TTileList, x, y: int): TTile =
 proc `[]`*(this: TTileList, coords: TCattyCoords): TTile = this[coords.x, coords.y]
 
 
+cattySetters(TGameField)
+gameObjectSetters(TGameField)
+
+
 proc respawnTile*(this: TGameField): TTile = 
   for tile in this.tiles:
     if tile.kind in {TYPE_RESPAWN}:
@@ -82,13 +86,12 @@ proc loadMap*(this: TGameField) =
       )
 
 proc initialization*(this: TGameField): TGameField {.discardable.} = 
-  this.kind = TYPE_GAMEFIELD
-  this.isDraw = true
-  this.coords = (0, 0)
-  this.size = (20 * SCALE, 11 * SCALE)
-  this.texture = application.getTexture("bg")
-
-  this.loadMap
+  this
+    .setKind(TYPE_GAMEFIELD)
+    .setCoords((0, 0))
+    .setSize((20 * SCALE, 11 * SCALE))
+    .setTexture(application.getTexture("bg"))
+    .show.loadMap
 
   return this
 
@@ -104,16 +107,16 @@ proc update*(this: TGameField) =
   for tile in this.tiles:
     tile.update
 
-proc onMoveArrow(this: TGameField, event: TEventStartMove) = 
-  var movingTile = this.tiles[event.coords]
 
-  movingTile.offsetStop = event.offsetStop
-  movingTile.delta = event.delta
-  movingTile.isMoving = true
-  movingTile.direction = computeDirection(event.coords, event.offsetStop)
-
-
-proc onUserEvent*(this: TGameField, event: PUserEvent) = 
-  case event.code
-  of EVENT_TILE_ARROW_START_MOVE: this.onMoveArrow(cast[TEventStartMove](event.data1))
+proc onUserEvent*(this: TGameField, e: PUserEvent) = 
+  case e.code
+  of EVENT_TILE_ARROW_START_MOVE:
+    this.tiles[cast[TEventStartMove](e.data1).coords].onUserEvent(e)
+  of EVENT_TILE_ARROW_END_MOVE:
+    this.tiles[cast[TEventEndMove](e.data1).coords].onUserEvent(e)
+  of EVENT_TILE_ARROW_ACTIVATE:
+    this.tiles.each do (tile: var TTile): tile.isActive = false
+    this.tiles[cast[TEventActivate](e.data1).coords].onUserEvent(e)
+  of EVENT_TILE_ARROW_DEACTIVATE:
+    this.tiles[cast[TEventDeactivate](e.data1).coords].onUserEvent(e)
   else: discard

@@ -120,38 +120,6 @@ proc getOffsetArrow(this: TGameDispatcher, direction: uint32, arrow: TTile): TCa
     else: discard
 
 
-proc ON_EVENT_PROTAGONIST_START_MOVE(this: TGameDispatcher, direction: uint32, coords, offsetStop, delta: TCattyCoords): sdl.TUserEvent =
-  return sdl.TUserEvent(kind: sdl.USEREVENT, code: EVENT_PROTAGONIST_START_MOVE, data1: cast[ptr TEventStartMove](TEventStartMove(
-    direction: direction,
-    coords: coords,
-    offsetStop: offsetStop,
-    delta: delta
-  )))
-
-
-proc ON_EVENT_TILE_ARROW_START_MOVE(this: TGameDispatcher, direction: uint32, coords, offsetStop, delta: TCattyCoords): sdl.TUserEvent =
-  return sdl.TUserEvent(kind: sdl.USEREVENT, code: EVENT_TILE_ARROW_START_MOVE, data1: cast[ptr TEventStartMove](TEventStartMove(
-    direction: direction,
-    coords: coords,
-    offsetStop: offsetStop,
-    delta: delta
-  )))
-
-proc ON_EVENT_SIGHTING_START_MOVE(this: TGameDispatcher, direction: uint32, coords, offsetStop, delta: TCattyCoords): sdl.TUserEvent =
-  return sdl.TUserEvent(kind: sdl.USEREVENT, code: EVENT_SIGHTING_START_MOVE, data1: cast[ptr TEventStartMove](TEventStartMove(
-    direction: direction,
-    coords: coords,
-    offsetStop: offsetStop,
-    delta: delta
-  )))
-
-proc ON_EVENT_PROTAGONIST_ACTIVATE(this: TGameDispatcher): TUserEvent = TUserEvent(kind: sdl.USEREVENT, code: EVENT_PROTAGONIST_ACTIVATE)
-proc ON_EVENT_PROTAGONIST_DEACTIVATE(this: TGameDispatcher): TUserEvent = TUserEvent(kind: sdl.USEREVENT, code: EVENT_PROTAGONIST_DEACTIVATE)
-proc ON_EVENT_SIGHTING_ACTIVATE(this: TGameDispatcher): TUserEvent = TUserEvent(kind: sdl.USEREVENT, code: EVENT_SIGHTING_ACTIVATE)
-proc ON_EVENT_SIGHTING_DEACTIVATE(this: TGameDispatcher): TUserEvent = TUserEvent(kind: sdl.USEREVENT, code: EVENT_SIGHTING_DEACTIVATE)
-proc ON_EVENT_TILE_ARROW_ACTIVATE(this: TGameDispatcher, coords: TCattyCoords): TUserEvent = TUserEvent(kind: sdl.USEREVENT, code: EVENT_TILE_ARROW_ACTIVATE, data1: cast[ptr TEventActivate](TEventActivate(x: coords.x, y: coords.y)))
-proc ON_EVENT_TILE_ARROW_DEACTIVATE(this: TGameDispatcher, coords: TCattyCoords): TUserEvent = TUserEvent(kind: sdl.USEREVENT, code: EVENT_TILE_ARROW_DEACTIVATE, data1: cast[ptr TEventDeactivate](TEventDeactivate(x: coords.x, y: coords.y)))
-
 proc onKeyDownProtagonist(this: TGameDispatcher, key: sdl.TKey) =
   var 
     isCollision: bool
@@ -165,12 +133,9 @@ proc onKeyDownProtagonist(this: TGameDispatcher, key: sdl.TKey) =
         o = this.getOffsetArrow(DIRECTION_TOP, this.gameField.tiles[this.protagonist.coords])
         d = (0, -1 * DELTA_SIGHTING)
 
-        eventProtagonist = this.ON_EVENT_PROTAGONIST_START_MOVE(DIRECTION_TOP, c, o, d)
-        eventArrow = this.ON_EVENT_TILE_ARROW_START_MOVE(DIRECTION_TOP, c, o, d)
+      fireProtagonistStartMove(DIRECTION_TOP, c, o, d)
+      fireTileArrowStartMove(DIRECTION_TOP, c, o, d)
 
-      discard sdl.pushEvent(cast[sdl.PEvent](addr eventProtagonist))
-      discard sdl.pushEvent(cast[sdl.PEvent](addr eventArrow))
- 
     elif not isCollision:
       this.protagonist.isStepArrow = false
 
@@ -178,9 +143,9 @@ proc onKeyDownProtagonist(this: TGameDispatcher, key: sdl.TKey) =
         c = this.protagonist.coords
         o = this.protagonist.coords - (0, SCALE)
         d = (0, -1 * DELTA_PROTAGONIST)
-        event = this.ON_EVENT_PROTAGONIST_START_MOVE(DIRECTION_TOP, c, o, d)
 
-      discard sdl.pushEvent(cast[sdl.PEvent](addr event))
+      fireProtagonistStartMove(DIRECTION_TOP, c, o, d)
+
 
   elif key in {K_DOWN, K_S}:
     isCollision = this.protagonist.isCollision(this.gameField.tiles[this.protagonist.coords + (0, SCALE)])
@@ -191,11 +156,9 @@ proc onKeyDownProtagonist(this: TGameDispatcher, key: sdl.TKey) =
         o = this.getOffsetArrow(DIRECTION_BOTTOM, this.gameField.tiles[this.protagonist.coords])
         d = (0, DELTA_SIGHTING)
 
-        eventProtagonist = this.ON_EVENT_PROTAGONIST_START_MOVE(DIRECTION_BOTTOM, c, o, d)
-        eventArrow = this.ON_EVENT_TILE_ARROW_START_MOVE(DIRECTION_BOTTOM, c, o, d)
+      fireProtagonistStartMove(DIRECTION_BOTTOM, c, o, d)
+      fireTileArrowStartMove(DIRECTION_BOTTOM, c, o, d)
 
-      discard sdl.pushEvent(cast[sdl.PEvent](addr eventProtagonist))
-      discard sdl.pushEvent(cast[sdl.PEvent](addr eventArrow))
     elif not isCollision:
       this.protagonist.isStepArrow = false
 
@@ -204,9 +167,7 @@ proc onKeyDownProtagonist(this: TGameDispatcher, key: sdl.TKey) =
         o = this.protagonist.coords + (0, SCALE)
         d = (0, DELTA_PROTAGONIST)
 
-        event = this.ON_EVENT_PROTAGONIST_START_MOVE(DIRECTION_BOTTOM, c, o, d)
-
-      discard sdl.pushEvent(cast[sdl.PEvent](addr event))
+      fireProtagonistStartMove(DIRECTION_BOTTOM, c, o, d)
 
   elif key in {K_LEFT, K_A}:
     isCollision = this.protagonist.isCollision(this.gameField.tiles[this.protagonist.coords - (SCALE, 0)])
@@ -217,11 +178,8 @@ proc onKeyDownProtagonist(this: TGameDispatcher, key: sdl.TKey) =
         o = this.getOffsetArrow(DIRECTION_LEFT, this.gameField.tiles[this.protagonist.coords])
         d = (-1 * DELTA_SIGHTING, 0)
 
-        eventProtagonist = this.ON_EVENT_PROTAGONIST_START_MOVE(DIRECTION_LEFT, c, o, d)
-        eventArrow = this.ON_EVENT_TILE_ARROW_START_MOVE(DIRECTION_LEFT, c, o, d)
-
-      discard sdl.pushEvent(cast[sdl.PEvent](addr eventProtagonist))
-      discard sdl.pushEvent(cast[sdl.PEvent](addr eventArrow))
+      fireProtagonistStartMove(DIRECTION_LEFT, c, o, d)
+      fireTileArrowStartMove(DIRECTION_LEFT, c, o, d)
 
     elif not isCollision:
       this.protagonist.isStepArrow = false
@@ -231,9 +189,7 @@ proc onKeyDownProtagonist(this: TGameDispatcher, key: sdl.TKey) =
         o = this.protagonist.coords - (SCALE, 0)
         d = (-1 * DELTA_PROTAGONIST, 0)
 
-        event = this.ON_EVENT_PROTAGONIST_START_MOVE(DIRECTION_LEFT, c, o, d)
-
-      discard sdl.pushEvent(cast[sdl.PEvent](addr event))
+      fireProtagonistStartMove(DIRECTION_LEFT, c, o, d)
 
   elif key in {K_RIGHT, K_D}:
     isCollision = this.protagonist.isCollision(this.gameField.tiles[this.protagonist.coords + (SCALE, 0)])
@@ -244,11 +200,8 @@ proc onKeyDownProtagonist(this: TGameDispatcher, key: sdl.TKey) =
         o = this.getOffsetArrow(DIRECTION_RIGHT, this.gameField.tiles[this.protagonist.coords])
         d = (DELTA_SIGHTING, 0)
 
-        eventProtagonist = this.ON_EVENT_PROTAGONIST_START_MOVE(DIRECTION_RIGHT, c, o, d)
-        eventArrow = this.ON_EVENT_TILE_ARROW_START_MOVE(DIRECTION_RIGHT, c, o, d)
-
-      discard sdl.pushEvent(cast[sdl.PEvent](addr eventProtagonist))
-      discard sdl.pushEvent(cast[sdl.PEvent](addr eventArrow))
+      fireProtagonistStartMove(DIRECTION_RIGHT, c, o, d)
+      fireTileArrowStartMove(DIRECTION_RIGHT, c, o, d)
 
     elif not isCollision:
       this.protagonist.isStepArrow = false
@@ -258,9 +211,7 @@ proc onKeyDownProtagonist(this: TGameDispatcher, key: sdl.TKey) =
         o = this.protagonist.coords + (SCALE, 0)
         d = (DELTA_PROTAGONIST, 0)
 
-        event = this.ON_EVENT_PROTAGONIST_START_MOVE(DIRECTION_RIGHT, c, o, d)
-
-      discard sdl.pushEvent(cast[sdl.PEvent](addr event))
+      fireProtagonistStartMove(DIRECTION_RIGHT, c, o, d)
 
   else: discard
 
@@ -279,56 +230,50 @@ proc onKeyDown*(this: TGameDispatcher, key: sdl.TKey) =
   case key
   of K_SPACE:
     if this.protagonist.isActive:
-      this.sighting.coords = this.protagonist.coords
-      this.protagonist.deactivate
-      this.sighting.show.activate
-    elif this.tile != nil and this.tile.isActive:
-      this.sighting.coords = this.tile.coords
-      this.tile.deactivate
-      this.sighting.show.activate
-    elif this.sighting.isActive:
-      if this.sighting.coords == this.protagonist.coords:
-        this.protagonist.activate
-        this.sighting.hide.deactivate
-      elif this.gameField.tiles[this.sighting.coords].kind in AALL_SET:
-        if this.tile != nil: this.tile.deactivate
-        this.gameField.tiles[this.sighting.coords].activate
-        this.sighting.hide.deactivate
+      fireSightingActivate(this.protagonist.coords)
+      fireProtagonistDeactivate(this.protagonist.coords)
+      fireTileArrowDeactivate(this.protagonist.coords)
+    elif this.sighting.isActive and this.protagonist.coords == this.sighting.coords:
+      fireSightingDeactivate()
+      fireProtagonistActivate()
+      if this.gameField.tiles[this.sighting.coords].kind in AALL_SET:
+        this.sighting.coords.fireTileArrowActivate()
+    elif this.sighting.isActive and this.gameField.tiles[this.sighting.coords].kind in AALL_SET:
+      fireSightingDeactivate()
+      this.sighting.coords.fireTileArrowActivate()
+
   else: discard
 
   if this.protagonist.isActive: this.onKeyDownProtagonist(key)
   elif this.sighting.isActive: this.onKeyDownSighting(key)
 
 
-proc onUserEvent*(this: TGameDispatcher, event: PUserEvent) = 
-  case event.code
+proc onUserEvent*(this: TGameDispatcher, e: PUserEvent) = 
+  case e.code
+
+  of EVENT_PROTAGONIST_ACTIVATE: discard
+  of EVENT_PROTAGONIST_DEACTIVATE: discard
+  of EVENT_PROTAGONIST_START_MOVE: discard
   of EVENT_PROTAGONIST_END_MOVE:
 
     var 
-      data = cast[TEventEndMove](event.data1)
-      tile = this.gameField.tiles[data.x, data.y]
+      event = cast[TEventEndMove](e.data1)
 
 
-    case tile.kind
+    if this.gameField.tiles[event.coords].kind in AALL_SET:
+      echo "EVENT_PROTAGONIST_END_MOVE: ", event
+      event.coords.fireTileArrowActivate()
 
-    of TYPE_ALEFT, TYPE_ARIGHT, TYPE_ABOTTOM, TYPE_ATOP, TYPE_AVERTICAL, TYPE_AHORIZONTAL, TYPE_AALL: 
-      this.protagonist.isStepArrow = true
 
-      if this.tile == nil:
-        tile.isActive = true
-      else:
-        this.tile.isActive = false
-        tile.isActive = true
 
-    else: 
-      this.protagonist.isStepArrow = false
-
-      if this.tile != nil:
-        this.tile.isActive = false
-
+  of EVENT_SIGHTING_ACTIVATE: discard
+  of EVENT_SIGHTING_DEACTIVATE: discard
+  of EVENT_SIGHTING_START_MOVE: discard
   of EVENT_SIGHTING_END_MOVE: discard
 
-
+  of EVENT_TILE_ARROW_ACTIVATE: discard
+  of EVENT_TILE_ARROW_DEACTIVATE: discard
+  of EVENT_TILE_ARROW_START_MOVE: discard
   of EVENT_TILE_ARROW_END_MOVE: discard
 
   else: discard

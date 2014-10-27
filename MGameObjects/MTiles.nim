@@ -7,42 +7,23 @@ import
 const
   COLLISION_SET = {TYPE_ALEFT, TYPE_ARIGHT, TYPE_ATOP, TYPE_ABOTTOM, TYPE_AHORIZONTAL, TYPE_AVERTICAL, TYPE_AVERTICAL, TYPE_TILE_WALL, TYPE_TILE}
 
+cattySetters(TTile)
+gameObjectSetters(TTile)
+
 proc isCollision*(this,  tile: TTile): bool = tile.kind in COLLISION_SET
 
-proc eventEndMove(this: TTile) = 
+proc endMove(this: TTile) = 
   this.stopAnim
-  this.coords = this.offsetStop
-  this.isMoving = false
+  this
+    .setCoords(this.offsetStop)
+    .stop.coords.fireTileArrowEndMove
 
-  var
-    data = cast[ptr TEventEndMove](TEventEndMove(x: this.coords.x, y: this.coords.y))
-    event = sdl.TUserEvent(
-      kind: sdl.USEREVENT, code: EVENT_TILE_ARROW_END_MOVE, data1: data
-    )
-
-  discard sdl.pushEvent(cast[sdl.PEvent](addr event))
-
-proc show*(this: TTile): TTile {.discardable.} = 
-  this.isDraw = true
-  return this
-
-proc hide*(this: TTile): TTile {.discardable.} =
-  this.isDraw = false
-  return this
-
-proc activate*(this: TTile): TTile {.discardable.} =
-  this.isActive = true
-  return this
-
-proc deactivate*(this: TTile): TTile {.discardable.} =
-  this.isActive = false
-  return this
 
 proc initialization*(this: TTile): TTile {.discardable.} = 
   cast[TCattyGameObject](this).initialization()
 
   case this.kind
-  of TYPE_TILE_WALL: this.texture = application.getTexture("wall")
+  of TYPE_TILE_WALL: this.setTexture(application.getTexture("wall"))
   of TYPE_TILE: this.texture = application.getTexture("tail-" + rand() mod 5)
   of TYPE_RESPAWN: this.texture = application.getTexture("respawn")
   of TYPE_EXIT: this.texture = application.getTexture("exit")
@@ -59,15 +40,31 @@ proc initialization*(this: TTile): TTile {.discardable.} =
 
 proc update*(this: TTile) =
   if this.isMoving:
-    
 
     case this.direction
     of DIRECTION_TOP, DIRECTION_LEFT:
       if this.coords + this.delta < this.offsetStop:
-        this.eventEndMove
+        this.endMove
       else: this.coords += this.delta
     of DIRECTION_BOTTOM, DIRECTION_RIGHT:
       if this.coords + this.delta > this.offsetStop:
-        this.eventEndMove
+        this.endMove
       else: this.coords += this.delta
     else: discard
+
+
+proc onUserEvent*(this: TTile, e: PUserEvent) =
+  case e.code
+  of EVENT_TILE_ARROW_START_MOVE: 
+    var event = cast[TEventStartMove](e.data1)
+
+    this
+      .setOffsetStop(event.offsetStop)
+      .setDelta(event.delta)
+      .setDirection(event.direction)
+      .move
+
+  of EVENT_TILE_ARROW_END_MOVE: discard
+  of EVENT_TILE_ARROW_ACTIVATE: this.activate
+  of EVENT_TILE_ARROW_DEACTIVATE: this.deactivate
+  else: discard
