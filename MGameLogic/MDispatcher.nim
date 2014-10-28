@@ -50,6 +50,8 @@ proc tile(this: TGameDispatcher): TTile =
     if tile.kind in AALL_SET and tile.isActive:
       return tile
 
+  return TTile()
+
 proc sighting(this: TGameDispatcher): TSighting = 
   for g in gameObjects:
     if g.kind in {TYPE_SIGHTING}:
@@ -113,9 +115,7 @@ proc onKeyDownProtagonist(this: TGameDispatcher, key: sdl.TKey) =
         this.gameField.tiles[this.protagonist.coords - (0, SCALE)]
       )
 
-    echo "K_UP"
     if this.protagonist.isStepArrow and isCollision and this.tile.kind in ATOP_SET:
-      echo "K_UP isStepArrow"
       echo DIRECTION_TOP, this.gameField.tiles[this.protagonist.coords].coords
       var
         c = this.protagonist.coords
@@ -127,7 +127,6 @@ proc onKeyDownProtagonist(this: TGameDispatcher, key: sdl.TKey) =
       fireTileArrowStartMove(DIRECTION_TOP, c, o, d)
 
     elif not isCollision:
-      echo "K_UP isntCollision"
       this.protagonist.isStepArrow = false
 
       var 
@@ -304,7 +303,7 @@ proc onKeyDown*(this: TGameDispatcher, key: sdl.TKey) =
     this.onKeyDownProtagonist(key)
   elif this.sighting.isActive and not this.sighting.isMoving: 
     this.onKeyDownSighting(key)
-  elif this.tile.isActive and not this.tile.isMoving: 
+  elif this.tile.isActive and not this.tile.isMoving:
     this.onKeyDownArrowTile(key)
 
 
