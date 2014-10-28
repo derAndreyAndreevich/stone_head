@@ -5,7 +5,7 @@ import
   MGameObject
 
 const
-  COLLISION_SET = {TYPE_ALEFT, TYPE_ARIGHT, TYPE_ATOP, TYPE_ABOTTOM, TYPE_AHORIZONTAL, TYPE_AVERTICAL, TYPE_AVERTICAL, TYPE_TILE_WALL, TYPE_TILE}
+  COLLISION_SET = {TYPE_ALEFT, TYPE_ARIGHT, TYPE_ATOP, TYPE_ABOTTOM, TYPE_AHORIZONTAL, TYPE_AVERTICAL, TYPE_AVERTICAL, TYPE_TILE_WALL, TYPE_TILE, TYPE_RESPAWN, TYPE_EXIT, TYPE_AALL}
 
 cattySetters(TTile)
 gameObjectSetters(TTile)
@@ -63,6 +63,8 @@ proc onUserEvent*(this: TTile, e: PUserEvent) =
       .setDelta(event.delta)
       .setDirection(event.direction)
       .move
+
+    echo "TTile <EVENT_TILE_ARROW_START_MOVE> ", event.offsetStop, " ", event.direction
 
   of EVENT_TILE_ARROW_END_MOVE: discard
   of EVENT_TILE_ARROW_ACTIVATE: this.activate

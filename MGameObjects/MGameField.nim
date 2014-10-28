@@ -28,18 +28,14 @@ proc respawnTile*(this: TGameField): TTile =
 
 
 proc loadMap*(this: TGameField) = 
-  var
-    settingsFile = os.getAppDir() / "settings.json"
-    file = settingsFile.parseFile()
-    currentMap = cast[int](file["currentMap"].num)
-
+  var mapFile = (os.getAppDir() / "data" / "maps.json").parseFile
 
   this.tiles = @[]
 
   for i in countup(0, M - 1):
     for j in countup(0, N - 1):
       var
-        symbol = file["maps"][currentMap][i][j].str
+        symbol = mapFile[this.map][i][j].str
         x = j * SCALE
         y = i * SCALE
         w = SCALE
@@ -85,6 +81,10 @@ proc loadMap*(this: TGameField) =
         TTile(coords: (x, y), size: (w, h)).initialization
       )
 
+proc nextMap*(this: TGameField) =
+  this.map += 1
+  this.loadMap
+
 proc initialization*(this: TGameField): TGameField {.discardable.} = 
   this
     .setKind(TYPE_GAMEFIELD)
@@ -111,11 +111,13 @@ proc update*(this: TGameField) =
 proc onUserEvent*(this: TGameField, e: PUserEvent) = 
   case e.code
   of EVENT_TILE_ARROW_START_MOVE:
+    echo "EVENT_TILE_ARROW_START_MOVE: ", e.data1.asEventStartMove.coords
     this.tiles[e.data1.asEventStartMove.coords].onUserEvent(e)
   of EVENT_TILE_ARROW_END_MOVE:
     this.tiles[e.data1.asEventEndMove.coords].onUserEvent(e)
   of EVENT_TILE_ARROW_ACTIVATE:
     this.tiles.each do (tile: var TTile): tile.isActive = false
+    echo "EVENT_TILE_ARROW_ACTIVATE: ", e.data1.asEventActivate.coords
     this.tiles[e.data1.asEventActivate.coords].onUserEvent(e)
   of EVENT_TILE_ARROW_DEACTIVATE:
     this.tiles[e.data1.asEventDeactivate.coords].onUserEvent(e)
