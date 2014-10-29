@@ -52,9 +52,9 @@ block gameLoopBlock:
 
           for gameObject in gameObjects:
             case gameObject.kind
-            of TYPE_GAMEFIELD: gameObject.asGameField.onUserEvent(userEvent)
-            of TYPE_PROTAGONIST: gameObject.asProtagonist.onUserEvent(userEvent)
-            of TYPE_SIGHTING: gameObject.asSighting.onUserEvent(userEvent)
+            of tpGameField.ord: gameObject.asGameField.onUserEvent(userEvent)
+            of tpProtagonist.ord: gameObject.asProtagonist.onUserEvent(userEvent)
+            of tpSighting.ord: gameObject.asSighting.onUserEvent(userEvent)
             else: discard
 
 
@@ -64,9 +64,9 @@ block gameLoopBlock:
 
       for gameObject in gameObjects:
         case gameObject.kind
-        of TYPE_GAMEFIELD: gameObject.asGameField.update
-        of TYPE_PROTAGONIST: gameObject.asProtagonist.update
-        of TYPE_SIGHTING: gameObject.asSighting.update
+        of tpGameField.ord: gameObject.asGameField.update
+        of tpProtagonist.ord: gameObject.asProtagonist.update
+        of tpSighting.ord: gameObject.asSighting.update
         else: discard
 
     block gameDraw:
@@ -75,9 +75,9 @@ block gameLoopBlock:
 
       for gameObject in gameObjects:
         case gameObject.kind
-        of TYPE_GAMEFIELD: gameObject.asGameField.draw
-        of TYPE_PROTAGONIST: gameObject.asProtagonist.draw
-        of TYPE_SIGHTING: gameObject.asSighting.draw
+        of tpGameField.ord: gameObject.asGameField.draw
+        of tpProtagonist.ord: gameObject.asProtagonist.draw
+        of tpSighting.ord: gameObject.asSighting.draw
         else: discard
 
       glFlush()

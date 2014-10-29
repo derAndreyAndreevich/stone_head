@@ -20,16 +20,13 @@ const
   DELTA_PROTAGONIST = SCALE div ANIM_OFFSET_PROTAGONIST
   DELTA_SIGHTING = SCALE div ANIM_OFFSET_SIGHTING
 
-  AALL_SET = {TYPE_ALEFT, TYPE_ARIGHT, TYPE_ATOP, TYPE_ABOTTOM, TYPE_AHORIZONTAL, TYPE_AVERTICAL, TYPE_AVERTICAL, TYPE_AALL}
-  AHORIZONTAL_SET = {TYPE_ALEFT, TYPE_ARIGHT, TYPE_AHORIZONTAL, TYPE_AALL}
-  AVERTICAL_SET = {TYPE_ATOP, TYPE_ABOTTOM, TYPE_AVERTICAL, TYPE_AALL}
-  ARIGHT_SET = {TYPE_ARIGHT, TYPE_AHORIZONTAL, TYPE_AALL}
-  ALEFT_SET = {TYPE_ALEFT, TYPE_AHORIZONTAL, TYPE_AALL}
-  ATOP_SET = {TYPE_ATOP, TYPE_AVERTICAL, TYPE_AALL}
-  ABOTTOM_SET = {TYPE_ABOTTOM, TYPE_AVERTICAL, TYPE_AALL}
-
-  CPROTAGONIST_SET = {TYPE_NIL, TYPE_TILE_WALL}
-  CARROW_SET = AALL_SET + {TYPE_TILE_WALL, TYPE_TILE}
+  AALL_SET = {tpALeft.ord, tpARight.ord, tpATop.ord, tpABottom.ord, tpAHorizontal.ord, tpAVertical.ord, tpAAll.ord}
+  AHORIZONTAL_SET = {tpALeft.ord, tpARight.ord, tpAHorizontal.ord, tpAAll.ord}
+  AVERTICAL_SET = {tpATop.ord, tpABottom.ord, tpAVertical.ord, tpAAll.ord}
+  ARIGHT_SET = {tpARight.ord, tpAHorizontal.ord, tpAAll.ord}
+  ALEFT_SET = {tpALeft.ord, tpAHorizontal.ord, tpAAll.ord}
+  ATOP_SET = {tpATop.ord, tpAVertical.ord, tpAAll.ord}
+  ABOTTOM_SET = {tpABottom.ord, tpAVertical.ord, tpAAll.ord}
 
 type
   TGameDispatcher* = ref object of TCattyGameObject
@@ -37,12 +34,12 @@ type
 
 proc protagonist(this: TGameDispatcher): TProtagonist = 
   for g in gameObjects: 
-    if g.kind in {TYPE_PROTAGONIST}:
+    if g.kind in {tpProtagonist.ord}:
       return g.asProtagonist
 
 proc gameField(this: TGameDispatcher): TGameField = 
   for g in gameObjects:
-    if g.kind in {TYPE_GAMEFIELD}:
+    if g.kind in {tpGameField.ord}:
       return g.asGameField
 
 proc tile(this: TGameDispatcher): TTile =
@@ -54,7 +51,7 @@ proc tile(this: TGameDispatcher): TTile =
 
 proc sighting(this: TGameDispatcher): TSighting = 
   for g in gameObjects:
-    if g.kind in {TYPE_SIGHTING}:
+    if g.kind in {tpSighting.ord}:
       return g.asSighting
 
 proc getOffsetArrow(this: TGameDispatcher, direction: uint32, arrow: TTile): TCattyCoords = 
@@ -62,7 +59,7 @@ proc getOffsetArrow(this: TGameDispatcher, direction: uint32, arrow: TTile): TCa
 
   while true:
     case direction
-    of DIRECTION_LEFT:
+    of dirLeft.ord:
       if arrow.kind notin ALEFT_SET: break
 
       if result == arrow.coords:
@@ -72,7 +69,7 @@ proc getOffsetArrow(this: TGameDispatcher, direction: uint32, arrow: TTile): TCa
         if arrow.isCollision(this.gameField.tiles[result - (SCALE, 0)]): break
         result -= (SCALE, 0)
 
-    of DIRECTION_RIGHT:
+    of dirRight.ord:
       if arrow.kind notin ARIGHT_SET: break
 
       if result == arrow.coords:
@@ -82,7 +79,7 @@ proc getOffsetArrow(this: TGameDispatcher, direction: uint32, arrow: TTile): TCa
         if arrow.isCollision(this.gameField.tiles[result + (SCALE, 0)]): break
         result += (SCALE, 0)
 
-    of DIRECTION_TOP:
+    of dirTop.ord:
       if arrow.kind notin ATOP_SET: break
 
       if result == arrow.coords:
@@ -92,7 +89,7 @@ proc getOffsetArrow(this: TGameDispatcher, direction: uint32, arrow: TTile): TCa
         if arrow.isCollision(this.gameField.tiles[result - (0, SCALE)]): break
         result -= (0, SCALE)
 
-    of DIRECTION_BOTTOM:
+    of dirBottom.ord:
       if arrow.kind notin ABOTTOM_SET: break
 
       if result == arrow.coords:
@@ -116,15 +113,15 @@ proc onKeyDownProtagonist(this: TGameDispatcher, key: sdl.TKey) =
       )
 
     if this.protagonist.isStepArrow and isCollision and this.tile.kind in ATOP_SET:
-      echo DIRECTION_TOP, this.gameField.tiles[this.protagonist.coords].coords
+      echo dirTop.ord, this.gameField.tiles[this.protagonist.coords].coords
       var
         c = this.protagonist.coords
-        o = this.getOffsetArrow(DIRECTION_TOP, this.gameField.tiles[this.protagonist.coords])
+        o = this.getOffsetArrow(dirTop.ord, this.gameField.tiles[this.protagonist.coords])
         d = (0, -1 * DELTA_SIGHTING)
 
 
-      fireProtagonistStartMove(DIRECTION_TOP, c, o, d)
-      fireTileArrowStartMove(DIRECTION_TOP, c, o, d)
+      fireProtagonistStartMove(dirTop.ord, c, o, d)
+      fireTileArrowStartMove(dirTop.ord, c, o, d)
 
     elif not isCollision:
       this.protagonist.isStepArrow = false
@@ -134,7 +131,7 @@ proc onKeyDownProtagonist(this: TGameDispatcher, key: sdl.TKey) =
         o = this.protagonist.coords - (0, SCALE)
         d = (0, -1 * DELTA_PROTAGONIST)
 
-      fireProtagonistStartMove(DIRECTION_TOP, c, o, d)
+      fireProtagonistStartMove(dirTop.ord, c, o, d)
 
 
   elif key in {K_DOWN, K_S}:
@@ -143,11 +140,11 @@ proc onKeyDownProtagonist(this: TGameDispatcher, key: sdl.TKey) =
     if this.protagonist.isStepArrow and isCollision and this.tile.kind in ABOTTOM_SET:
       var
         c = this.protagonist.coords
-        o = this.getOffsetArrow(DIRECTION_BOTTOM, this.gameField.tiles[this.protagonist.coords])
+        o = this.getOffsetArrow(dirBottom.ord, this.gameField.tiles[this.protagonist.coords])
         d = (0, DELTA_SIGHTING)
 
-      fireProtagonistStartMove(DIRECTION_BOTTOM, c, o, d)
-      fireTileArrowStartMove(DIRECTION_BOTTOM, c, o, d)
+      fireProtagonistStartMove(dirBottom.ord, c, o, d)
+      fireTileArrowStartMove(dirBottom.ord, c, o, d)
 
     elif not isCollision:
       this.protagonist.isStepArrow = false
@@ -157,7 +154,7 @@ proc onKeyDownProtagonist(this: TGameDispatcher, key: sdl.TKey) =
         o = this.protagonist.coords + (0, SCALE)
         d = (0, DELTA_PROTAGONIST)
 
-      fireProtagonistStartMove(DIRECTION_BOTTOM, c, o, d)
+      fireProtagonistStartMove(dirBottom.ord, c, o, d)
 
   elif key in {K_LEFT, K_A}:
     isCollision = this.protagonist.isCollision(this.gameField.tiles[this.protagonist.coords - (SCALE, 0)])
@@ -165,11 +162,11 @@ proc onKeyDownProtagonist(this: TGameDispatcher, key: sdl.TKey) =
     if this.protagonist.isStepArrow and isCollision and this.tile.kind in ALEFT_SET:
       var 
         c = this.protagonist.coords
-        o = this.getOffsetArrow(DIRECTION_LEFT, this.gameField.tiles[this.protagonist.coords])
+        o = this.getOffsetArrow(dirLeft.ord, this.gameField.tiles[this.protagonist.coords])
         d = (-1 * DELTA_SIGHTING, 0)
 
-      fireProtagonistStartMove(DIRECTION_LEFT, c, o, d)
-      fireTileArrowStartMove(DIRECTION_LEFT, c, o, d)
+      fireProtagonistStartMove(dirLeft.ord, c, o, d)
+      fireTileArrowStartMove(dirLeft.ord, c, o, d)
 
     elif not isCollision:
       this.protagonist.isStepArrow = false
@@ -179,7 +176,7 @@ proc onKeyDownProtagonist(this: TGameDispatcher, key: sdl.TKey) =
         o = this.protagonist.coords - (SCALE, 0)
         d = (-1 * DELTA_PROTAGONIST, 0)
 
-      fireProtagonistStartMove(DIRECTION_LEFT, c, o, d)
+      fireProtagonistStartMove(dirLeft.ord, c, o, d)
 
   elif key in {K_RIGHT, K_D}:
     isCollision = this.protagonist.isCollision(this.gameField.tiles[this.protagonist.coords + (SCALE, 0)])
@@ -187,11 +184,11 @@ proc onKeyDownProtagonist(this: TGameDispatcher, key: sdl.TKey) =
     if this.protagonist.isStepArrow and isCollision and this.tile.kind in ARIGHT_SET:
       var 
         c = this.protagonist.coords
-        o = this.getOffsetArrow(DIRECTION_RIGHT, this.gameField.tiles[this.protagonist.coords])
+        o = this.getOffsetArrow(dirRight.ord, this.gameField.tiles[this.protagonist.coords])
         d = (DELTA_SIGHTING, 0)
 
-      fireProtagonistStartMove(DIRECTION_RIGHT, c, o, d)
-      fireTileArrowStartMove(DIRECTION_RIGHT, c, o, d)
+      fireProtagonistStartMove(dirRight.ord, c, o, d)
+      fireTileArrowStartMove(dirRight.ord, c, o, d)
 
     elif not isCollision:
       this.protagonist.isStepArrow = false
@@ -201,7 +198,7 @@ proc onKeyDownProtagonist(this: TGameDispatcher, key: sdl.TKey) =
         o = this.protagonist.coords + (SCALE, 0)
         d = (DELTA_PROTAGONIST, 0)
 
-      fireProtagonistStartMove(DIRECTION_RIGHT, c, o, d)
+      fireProtagonistStartMove(dirRight.ord, c, o, d)
 
   else: discard
 
@@ -211,31 +208,31 @@ proc onKeyDownArrowTile(this: TGameDispatcher, key: sdl.TKey) =
 
   if key in {K_UP, K_W}:
     c = this.tile.coords
-    o = this.getOffsetArrow(DIRECTION_TOP, this.tile)
+    o = this.getOffsetArrow(dirTop.ord, this.tile)
     d = (0, -1 * DELTA_SIGHTING)
 
-    DIRECTION_TOP.fireTileArrowStartMove(c, o, d)
+    dirTop.ord.fireTileArrowStartMove(c, o, d)
 
   elif key in {K_DOWN, K_S}:
     c = this.tile.coords
-    o = this.getOffsetArrow(DIRECTION_BOTTOM, this.tile)
+    o = this.getOffsetArrow(dirBottom.ord, this.tile)
     d = (0, DELTA_SIGHTING)
 
-    DIRECTION_BOTTOM.fireTileArrowStartMove(c, o, d)
+    dirBottom.ord.fireTileArrowStartMove(c, o, d)
 
   elif key in {K_LEFT, K_A}:
     c = this.tile.coords
-    o = this.getOffsetArrow(DIRECTION_LEFT, this.tile)
+    o = this.getOffsetArrow(dirLeft.ord, this.tile)
     d = (-1 * DELTA_SIGHTING, 0)
 
-    DIRECTION_LEFT.fireTileArrowStartMove(c, o, d)
+    dirLeft.ord.fireTileArrowStartMove(c, o, d)
 
   elif key in {K_RIGHT, K_D}:
     c = this.tile.coords
-    o = this.getOffsetArrow(DIRECTION_RIGHT, this.tile)
+    o = this.getOffsetArrow(dirRight.ord, this.tile)
     d = (DELTA_SIGHTING, 0)
 
-    DIRECTION_RIGHT.fireTileArrowStartMove(c, o, d)
+    dirRight.ord.fireTileArrowStartMove(c, o, d)
 
 
 proc onKeyDownSighting(this: TGameDispatcher, key: sdl.TKey) =
@@ -247,28 +244,28 @@ proc onKeyDownSighting(this: TGameDispatcher, key: sdl.TKey) =
     o = this.sighting.coords - (0, SCALE)
     d = (0, -1 * DELTA_SIGHTING)
 
-    DIRECTION_TOP.fireSightingStartMove(c, o, d)
+    dirTop.ord.fireSightingStartMove(c, o, d)
 
   elif key in {K_DOWN, K_S} and (this.sighting.coords + (0, SCALE)).y <= SCREEN_HEIGHT:
     c = this.sighting.coords
     o = this.sighting.coords + (0, SCALE)
     d = (0, DELTA_SIGHTING)
 
-    DIRECTION_BOTTOM.fireSightingStartMove(c, o, d)
+    dirBottom.ord.fireSightingStartMove(c, o, d)
 
   elif key in {K_LEFT, K_A} and (this.sighting.coords - (SCALE, 0)).x >= 0:
     c = this.sighting.coords
     o = this.sighting.coords - (SCALE, 0)
     d = (-1 * DELTA_SIGHTING, 0)
 
-    DIRECTION_LEFT.fireSightingStartMove(c, o, d)
+    dirLeft.ord.fireSightingStartMove(c, o, d)
 
   elif key in {K_RIGHT, K_D} and (this.sighting.coords + (SCALE, 0)).x <= SCREEN_WIDTH:
     c = this.sighting.coords
     o = this.sighting.coords + (SCALE, 0)
     d = (DELTA_SIGHTING, 0)
 
-    DIRECTION_RIGHT.fireSightingStartMove(c, o, d)
+    dirRight.ord.fireSightingStartMove(c, o, d)
 
 
 
@@ -310,10 +307,7 @@ proc onKeyDown*(this: TGameDispatcher, key: sdl.TKey) =
 proc onUserEvent*(this: TGameDispatcher, e: PUserEvent) = 
   case e.code
 
-  of EVENT_PROTAGONIST_ACTIVATE: discard
-  of EVENT_PROTAGONIST_DEACTIVATE: discard
-  of EVENT_PROTAGONIST_START_MOVE: discard
-  of EVENT_PROTAGONIST_END_MOVE:
+  of eventProtagonistEndMove.ord:
 
     var 
       event = cast[TEventEndMove](e.data1)
@@ -322,19 +316,8 @@ proc onUserEvent*(this: TGameDispatcher, e: PUserEvent) =
     if tile.kind in AALL_SET:
       event.coords.fireTileArrowActivate()
 
-    elif tile.kind in {TYPE_EXIT}:
+    elif tile.kind in {tpExit.ord}:
       this.gameField.nextMap
       this.protagonist.activate.coords = this.gameField.respawnTile.coords
-
-
-  of EVENT_SIGHTING_ACTIVATE: discard
-  of EVENT_SIGHTING_DEACTIVATE: discard
-  of EVENT_SIGHTING_START_MOVE: discard
-  of EVENT_SIGHTING_END_MOVE: discard
-
-  of EVENT_TILE_ARROW_ACTIVATE: discard
-  of EVENT_TILE_ARROW_DEACTIVATE: discard
-  of EVENT_TILE_ARROW_START_MOVE: discard
-  of EVENT_TILE_ARROW_END_MOVE: discard
 
   else: discard

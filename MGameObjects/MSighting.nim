@@ -21,10 +21,10 @@ proc initialization*(this: TSighting): TSighting {.discardable.} =
   cast[TCattyGameObject](this).initialization
 
   this
-    .setKind(TYPE_SIGHTING)
+    .setKind(tpSighting.ord)
     .setCoords((0, 0))
     .setSize((SCALE, SCALE))
-    .setDirection(DIRECTION_BOTTOM)
+    .setDirection(dirBottom.ord)
     .setTexture(application.getTexture("sighting"))
     .setSleep(80)
 
@@ -35,10 +35,10 @@ proc update*(this: TSighting) =
     this.coords += this.delta
 
     case this.direction
-    of DIRECTION_TOP, DIRECTION_LEFT:
+    of dirTop.ord, dirLeft.ord:
       if this.coords + this.delta > this.offsetStop:
         this.endMove
-    of DIRECTION_BOTTOM, DIRECTION_RIGHT:
+    of dirBottom.ord, dirRight.ord:
       if this.coords + this.delta < this.offsetStop:
         this.endMove
     else: discard
@@ -48,19 +48,19 @@ proc draw*(this: TSighting) =
 
 proc onUserEvent*(this: TSighting, e: PUserEvent) =
   case e.code
-  of EVENT_SIGHTING_ACTIVATE: 
+  of eventSightingActivate.ord: 
     var event = e.data1.asEventActivate
 
     this
       .setCoords(event.coords)
       .activate.show
 
-  of EVENT_SIGHTING_DEACTIVATE:
+  of eventSightingDeactivate.ord:
     var event = e.data1.asEventDeactivate
 
     this.deactivate.hide
 
-  of EVENT_SIGHTING_START_MOVE:
+  of eventSightingStartMove.ord:
     var event = e.data1.asEventStartMove
 
     this
