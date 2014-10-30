@@ -1,4 +1,4 @@
-import sdl, opengl
+import sdl, opengl, logging, marshal
 import 
   catty.core as MCattyCore,
   catty.gameobjects as MCattyGameObjects
@@ -15,17 +15,39 @@ import
 
 application.initialization()
 
+type
+  TSerialize = ref object 
+    f: int
+    a: string
+    map: seq[seq[string]]
+
 var 
   event: sdl.TEvent
   userEvent: PUserEvent
 
   dispatcher: TGameDispatcher 
 
+  serialize = TSerialize(f: 5, a: "hello andreysh", map: @[
+        @[" ", " ", "w", "w", "w", "w", "w", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
+        @[" ", " ", "w", " ", " ", " ", "w", " ", "w", "w", "w", " ", " ", " ", " ", " ", " ", " ", " ", " "],
+        @[" ", " ", "w", "w", "w", " ", "w", "w", "w", "e", "w", " ", " ", " ", " ", "w", "w", "w", " ", " "],
+        @[" ", " ", " ", " ", "w", " ", " ", " ", " ", " ", "w", "w", "w", "w", "w", "w", " ", "w", " ", " "],
+        @[" ", " ", " ", " ", "w", "w", " ", " ", " ", " ", " ", " ", " ", " ", "w", " ", " ", "w", " ", " "],
+        @[" ", " ", "w", "w", "w", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "w", "w", " ", " "],
+        @[" ", " ", "w", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "w", " ", "w", " ", " ", " "],
+        @[" ", " ", "w", "aa", "w", "w", "w", "w", " ", " ", " ", " ", " ", " ", "w", "w", "w", " ", " ", " "],
+        @[" ", " ", "w", "r", "w", " ", " ", "w", "w", "w", "w", " ", " ", " ", "w", " ", " ", " ", " ", " "],
+        @[" ", " ", "w", "w", "w", " ", " ", " ", " ", " ", "w", "w", "w", "w", "w", " ", " ", " ", " ", " "],
+        @[" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
+    ])
+
 gameObjects.add(@[
   TGameField().initialization.toCattyGameObject,
   TProtagonist().initialization.toCattyGameObject,
   TSighting().initialization.toCattyGameObject
 ])
+
+echo($$serialize)
 
 dispatcher = TGameDispatcher().initialization
 

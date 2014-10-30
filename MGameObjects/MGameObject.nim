@@ -4,6 +4,7 @@ type
   TTypeEnum* = enum
     tpNil, tpDispatcher, tpGameField, tpProtagonist, tpTile, tpTileWall, tpATop, tpABottom
     tpALeft, tpARight, tpAVertical, tpAHorizontal, tpAAll, tpSighting, tpRespawn, tpExit
+    tpTileGlass, tpTileTeleport, tpTileDoor, tpTileKey
 
   TDirectionEnum* = enum
     dirNil, dirTop, dirBottom, dirLeft, dirRight
